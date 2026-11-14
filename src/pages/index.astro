@@ -92,12 +92,12 @@ const lineMask = await getImage({
 		overflow: clip;
 		isolation: isolate;
 		/*
-		 * Landing position for the spotlight. JS keeps these in sync with the
-		 * pointer, but the defaults keep the mask valid before hydration.
+		 * Wide horizontal reveal band. JS keeps the centre and thickness in
+		 * sync with the pointer's Y position, but the defaults keep the mask
+		 * valid (and the band closed) before hydration.
 		 */
-		--reveal-x: 50%;
 		--reveal-y: 50%;
-		--reveal-r: 0px;
+		--reveal-h: 0px;
 	}
 
 	.hero-media__stage {
@@ -114,23 +114,27 @@ const lineMask = await getImage({
 		inset: 0;
 		pointer-events: none;
 		/*
-		 * Inverse of the color spotlight: inside the spotlight the tinted
-		 * line-art steps back so the color figure can be read cleanly.
+		 * Inverse of the color band: inside the band the tinted line-art steps
+		 * back so the color figure can be read cleanly. When the band collapses
+		 * (--reveal-h: 0px) every stop lands on the same line and the mask stays
+		 * fully opaque, leaving the line-art visible.
 		 */
-		-webkit-mask-image: radial-gradient(
-			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
-			transparent 0 52%,
-			rgb(0 0 0 / 0.08) 64%,
-			rgb(0 0 0 / 0.45) 79%,
-			rgb(0 0 0 / 0.82) 92%,
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			#000 0,
+			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.5),
+			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.28),
+			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.28),
+			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.5),
 			#000 100%
 		);
-		mask-image: radial-gradient(
-			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
-			transparent 0 52%,
-			rgb(0 0 0 / 0.08) 64%,
-			rgb(0 0 0 / 0.45) 79%,
-			rgb(0 0 0 / 0.82) 92%,
+		mask-image: linear-gradient(
+			to bottom,
+			#000 0,
+			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.5),
+			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.28),
+			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.28),
+			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.5),
 			#000 100%
 		);
 		-webkit-mask-repeat: no-repeat;
@@ -158,21 +162,19 @@ const lineMask = await getImage({
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
-		-webkit-mask-image: radial-gradient(
-			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
-			#000 0 52%,
-			rgb(0 0 0 / 0.92) 64%,
-			rgb(0 0 0 / 0.55) 79%,
-			rgb(0 0 0 / 0.18) 92%,
-			transparent 100%
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.5),
+			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.28),
+			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.28),
+			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.5)
 		);
-		mask-image: radial-gradient(
-			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
-			#000 0 52%,
-			rgb(0 0 0 / 0.92) 64%,
-			rgb(0 0 0 / 0.55) 79%,
-			rgb(0 0 0 / 0.18) 92%,
-			transparent 100%
+		mask-image: linear-gradient(
+			to bottom,
+			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.5),
+			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.28),
+			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.28),
+			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.5)
 		);
 		-webkit-mask-repeat: no-repeat;
 		mask-repeat: no-repeat;
@@ -253,69 +255,61 @@ const lineMask = await getImage({
 		if (!reducedMotion.matches) {
 			const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-			const SPOTLIGHT_RATIO = 0.26;
-			const FULL_REVEAL_RATIO = 1.6;
+			const BAND_RATIO = 0.3;
+			const BAND_MIN = 120;
+			const BAND_MAX = 280;
+			// Wide enough that the band's opaque core covers the whole portrait
+			// on touch devices: 0.28 * 2.4 > half of the contained square.
+			const FULL_REVEAL_RATIO = 2.4;
 			const STAGE_SCALE = 1.032;
 
 			const box = {
-				left: 0,
 				top: 0,
 				size: 0,
-				cx: 0,
 				cy: 0,
 			};
 
 			const state = {
-				x: 0,
 				y: 0,
-				targetX: 0,
 				targetY: 0,
-				radius: 0,
-				targetRadius: 0,
+				thickness: 0,
+				targetThickness: 0,
 			};
 
 			let frame = 0;
 			let lastTime = 0;
-			const lastPointer = { x: 0, y: 0 };
+			const lastPointer = { y: 0 };
 
 			const measure = () => {
 				const rect = media.getBoundingClientRect();
-				const size = Math.min(rect.width, rect.height);
 
-				box.left = rect.left;
 				box.top = rect.top;
-				box.size = size;
-				box.cx = rect.width / 2;
+				box.size = Math.min(rect.width, rect.height);
 				box.cy = rect.height / 2;
 			};
 
-			const setTarget = (clientX, clientY, scale = 1) => {
+			const bandThickness = () =>
+				clamp(box.size * BAND_RATIO, BAND_MIN, BAND_MAX);
+
+			const setTarget = (clientY, scale = 1) => {
 				if (!box.size) return false;
 
 				// The artwork is `object-fit: contain`, so the visible square is
 				// centered. Only reveal inside it, never in the empty
 				// letterbox area around the portrait.
 				const half = (box.size * scale) / 2;
-				const relX = clientX - box.left;
 				const relY = clientY - box.top;
-				const inside =
-					relX >= box.cx - half &&
-					relX <= box.cx + half &&
-					relY >= box.cy - half &&
-					relY <= box.cy + half;
+				const inside = relY >= box.cy - half && relY <= box.cy + half;
 
-				lastPointer.x = clientX;
 				lastPointer.y = clientY;
-				state.targetX = clamp(relX, box.cx - half, box.cx + half);
 				state.targetY = clamp(relY, box.cy - half, box.cy + half);
 
 				return inside;
 			};
 
 			const write = () => {
-				media.style.setProperty('--reveal-x', `${state.x}px`);
 				media.style.setProperty('--reveal-y', `${state.y}px`);
-				media.style.setProperty('--reveal-r', `${state.radius}px`);
+				media.style.setProperty('--reveal-h', `${state.thickness}px`);
 			};
 
 			const tick = (now) => {
@@ -324,23 +318,22 @@ const lineMask = await getImage({
 
 				// Frame-rate independent easing.
 				const positionEase = 1 - Math.pow(1 - 0.2, dt / 16.67);
-				const radiusEase = 1 - Math.pow(1 - 0.16, dt / 16.67);
+				const thicknessEase = 1 - Math.pow(1 - 0.16, dt / 16.67);
 
-				state.x += (state.targetX - state.x) * positionEase;
 				state.y += (state.targetY - state.y) * positionEase;
-				state.radius += (state.targetRadius - state.radius) * radiusEase;
+				state.thickness +=
+					(state.targetThickness - state.thickness) * thicknessEase;
 
-				const settledX = Math.abs(state.targetX - state.x) < 0.15;
 				const settledY = Math.abs(state.targetY - state.y) < 0.15;
-				const settledRadius = Math.abs(state.targetRadius - state.radius) < 0.4;
+				const settledThickness =
+					Math.abs(state.targetThickness - state.thickness) < 0.4;
 
-				if (settledX) state.x = state.targetX;
 				if (settledY) state.y = state.targetY;
-				if (settledRadius) state.radius = state.targetRadius;
+				if (settledThickness) state.thickness = state.targetThickness;
 
 				write();
 
-				const settled = settledX && settledY && settledRadius;
+				const settled = settledY && settledThickness;
 
 				if (settled) {
 					frame = 0;
@@ -360,24 +353,23 @@ const lineMask = await getImage({
 			if (finePointer.matches) {
 				media.addEventListener('pointerenter', (event) => {
 					measure();
-					const inside = setTarget(event.clientX, event.clientY, STAGE_SCALE);
+					const inside = setTarget(event.clientY, STAGE_SCALE);
 
 					// Open exactly where the pointer entered instead of sliding in
 					// from the previous position.
-					state.x = state.targetX;
 					state.y = state.targetY;
-					state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+					state.targetThickness = inside ? bandThickness() : 0;
 					start();
 				});
 
 				media.addEventListener('pointermove', (event) => {
-					const inside = setTarget(event.clientX, event.clientY, STAGE_SCALE);
-					state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+					const inside = setTarget(event.clientY, STAGE_SCALE);
+					state.targetThickness = inside ? bandThickness() : 0;
 					start();
 				});
 
 				media.addEventListener('pointerleave', () => {
-					state.targetRadius = 0;
+					state.targetThickness = 0;
 					start();
 				});
 
@@ -388,11 +380,10 @@ const lineMask = await getImage({
 						if (!box.size) return;
 						const isHovering = media.matches(':hover');
 						const inside = setTarget(
-							lastPointer.x,
 							lastPointer.y,
 							isHovering ? STAGE_SCALE : 1,
 						);
-						state.targetRadius = inside && isHovering ? box.size * SPOTLIGHT_RATIO : 0;
+						state.targetThickness = inside && isHovering ? bandThickness() : 0;
 						start();
 					},
 					{ passive: true },
@@ -401,8 +392,8 @@ const lineMask = await getImage({
 				window.addEventListener('resize', () => {
 					measure();
 					if (media.matches(':hover') && box.size) {
-						const inside = setTarget(lastPointer.x, lastPointer.y, STAGE_SCALE);
-						state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+						const inside = setTarget(lastPointer.y, STAGE_SCALE);
+						state.targetThickness = inside ? bandThickness() : 0;
 						start();
 					}
 				});
@@ -413,11 +404,9 @@ const lineMask = await getImage({
 					measure();
 					media.classList.add('is-revealed');
 
-					state.x = box.cx;
 					state.y = box.cy;
-					state.targetX = box.cx;
 					state.targetY = box.cy;
-					state.targetRadius = box.size * FULL_REVEAL_RATIO;
+					state.targetThickness = box.size * FULL_REVEAL_RATIO;
 					start();
 				};
 
@@ -441,9 +430,9 @@ const lineMask = await getImage({
 					if (!media.classList.contains('is-revealed')) return;
 
 					measure();
-					state.x = state.targetX = box.cx;
 					state.y = state.targetY = box.cy;
-					state.radius = state.targetRadius = box.size * FULL_REVEAL_RATIO;
+					state.thickness = state.targetThickness =
+						box.size * FULL_REVEAL_RATIO;
 					write();
 				});
 			}
