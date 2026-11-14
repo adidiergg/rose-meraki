@@ -2,7 +2,7 @@
 const year = new Date().getFullYear();
 ---
 
-<section class="contact" id="contacto" aria-labelledby="contacto-title" data-section-reveal>
+<section class="contact has-glow" id="contacto" aria-labelledby="contacto-title" data-section-reveal>
 	<div class="inner">
 		<p class="eyebrow">Contacto</p>
 
@@ -32,27 +32,12 @@ const year = new Date().getFullYear();
 
 <style>
 	.contact {
+		--glow-color: rgb(188 157 216 / 0.22);
+		--glow-size: 42rem;
 		box-sizing: border-box;
-		position: relative;
-		overflow: hidden;
 		padding: var(--section-block) var(--section-gutter);
 		background: var(--color-ink);
 		color: var(--color-cream);
-		isolation: isolate;
-	}
-
-	.contact::before {
-		content: '';
-		position: absolute;
-		top: -30%;
-		right: -15%;
-		z-index: -1;
-		width: min(42rem, 85vw);
-		aspect-ratio: 1;
-		border-radius: 50%;
-		background: radial-gradient(circle, rgb(188 157 216 / 0.22) 0%, transparent 68%);
-		filter: blur(10px);
-		pointer-events: none;
 	}
 
 	.inner {

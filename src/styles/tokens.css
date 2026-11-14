@@ -50,3 +50,26 @@ html.has-js [data-section-reveal].is-visible {
 	outline: 2px solid currentColor;
 	outline-offset: 4px;
 }
+
+/* Soft decorative glow used to give each block its own light. */
+.has-glow {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+.has-glow::before {
+	content: '';
+	position: absolute;
+	top: var(--glow-top, -30%);
+	right: var(--glow-right, -15%);
+	bottom: var(--glow-bottom, auto);
+	left: var(--glow-left, auto);
+	z-index: -1;
+	width: min(var(--glow-size, 42rem), 85vw);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: radial-gradient(circle, var(--glow-color) 0%, transparent 68%);
+	filter: blur(10px);
+	pointer-events: none;
+}

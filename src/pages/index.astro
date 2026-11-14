@@ -21,7 +21,7 @@ const lineMask = await getImage({
 
 <Layout>
 	<main>
-		<section class="hero">
+		<section class="hero has-glow">
 			<div class="hero-content">
 				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
 			</div>
@@ -62,6 +62,11 @@ const lineMask = await getImage({
 
 <style>
 	.hero {
+		--glow-color: rgb(188 157 216 / 0.14);
+		--glow-size: 48rem;
+		--glow-top: -35%;
+		--glow-right: auto;
+		--glow-left: -15%;
 		box-sizing: border-box;
 		height: 100dvh;
 		min-height: 100dvh;
