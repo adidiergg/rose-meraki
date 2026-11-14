@@ -1,0 +1,15 @@
+:root {
+	/* Primary */
+	--color-primary: #3f1667;
+	--color-primary-light: #6b3b95;
+	--color-primary-muted: #54457b;
+
+	/* Secondary */
+	--color-secondary: #bc9dd8;
+	--color-secondary-dark: #5c1043;
+	--color-accent: #3b4b95;
+
+	/* Neutral */
+	--color-cream: #fdf4ea;
+	--color-white: #ffffff;
+}

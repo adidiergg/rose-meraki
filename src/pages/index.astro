@@ -1,11 +1,452 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { Image, getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import poseLines from '../assets/brand/pose1.png';
+// posecolor1-alpha.png is posecolor1.png with its flat #2f2537 background
+// removed (flood-filled from the outer edges), so it can sit on the page's
+// purple instead of showing as a dark rectangle.
+import poseColor from '../assets/brand/posecolor1-alpha.png';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// The line-art alpha becomes a CSS mask so it can be tinted with a design token
+// instead of shipping the artwork twice.
+const lineMask = await getImage({
+	src: poseLines,
+	width: 1600,
+	format: 'webp',
+});
 ---
 
 <Layout>
-	<Welcome />
+	<main class="hero">
+		<div class="hero-content">
+			<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
+		</div>
+		<div
+			class="hero-media"
+			data-reveal
+			role="img"
+			aria-label="Rose Meraki portrait"
+			style={{ '--line-mask': `url("${lineMask.src}")` }}
+		>
+			<div class="hero-media__stage">
+				<div class="hero-media__lines" aria-hidden="true">
+					<div class="hero-media__lines-art"></div>
+				</div>
+				<div class="hero-media__color" aria-hidden="true">
+					<Image
+						class="hero-image"
+						src={poseColor}
+						alt=""
+						widths={[480, 768, 1200, 1600]}
+						sizes="(max-width: 768px) 100vw, 50vw"
+						format="webp"
+						loading="eager"
+						fetchpriority="low"
+						decoding="async"
+						draggable="false"
+					/>
+				</div>
+			</div>
+		</div>
+	</main>
 </Layout>
+
+<style>
+	.hero {
+		box-sizing: border-box;
+		height: 100dvh;
+		min-height: 100dvh;
+		display: grid;
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.hero-content {
+		align-self: center;
+		padding: clamp(1.5rem, 5vw, 5rem);
+	}
+
+	h1 {
+		margin: 0;
+		font-family: var(--font-instrument-serif), serif;
+		font-weight: 400;
+		font-size: clamp(3rem, 9vw, 10rem);
+		letter-spacing: -0.02em;
+		color: var(--color-secondary);
+		line-height: 0.8;
+	}
+
+	.rose {
+		display: block;
+		font-size: 0.5em;
+	}
+
+	.meraki {
+		display: block;
+		font-size: 1.15em;
+	}
+
+	.hero-media {
+		position: relative;
+		min-height: 0;
+		overflow: clip;
+		isolation: isolate;
+		/*
+		 * Landing position for the spotlight. JS keeps these in sync with the
+		 * pointer, but the defaults keep the mask valid before hydration.
+		 */
+		--reveal-x: 50%;
+		--reveal-y: 50%;
+		--reveal-r: 0px;
+	}
+
+	.hero-media__stage {
+		position: absolute;
+		inset: 0;
+		transform: scale(1);
+		transform-origin: 50% 50%;
+		transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+		will-change: transform;
+	}
+
+	.hero-media__lines {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		/*
+		 * Inverse of the color spotlight: inside the spotlight the tinted
+		 * line-art steps back so the color figure can be read cleanly.
+		 */
+		-webkit-mask-image: radial-gradient(
+			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
+			transparent 0 52%,
+			rgb(0 0 0 / 0.08) 64%,
+			rgb(0 0 0 / 0.45) 79%,
+			rgb(0 0 0 / 0.82) 92%,
+			#000 100%
+		);
+		mask-image: radial-gradient(
+			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
+			transparent 0 52%,
+			rgb(0 0 0 / 0.08) 64%,
+			rgb(0 0 0 / 0.45) 79%,
+			rgb(0 0 0 / 0.82) 92%,
+			#000 100%
+		);
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
+	}
+
+	.hero-media__lines-art {
+		position: absolute;
+		inset: 0;
+		background-color: var(--color-white);
+		transition: background-color 0.75s cubic-bezier(0.65, 0.05, 0, 1);
+		-webkit-mask-image: var(--line-mask);
+		mask-image: var(--line-mask);
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		mask-size: contain;
+	}
+
+	.hero-media__color {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		-webkit-mask-image: radial-gradient(
+			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
+			#000 0 52%,
+			rgb(0 0 0 / 0.92) 64%,
+			rgb(0 0 0 / 0.55) 79%,
+			rgb(0 0 0 / 0.18) 92%,
+			transparent 100%
+		);
+		mask-image: radial-gradient(
+			circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
+			#000 0 52%,
+			rgb(0 0 0 / 0.92) 64%,
+			rgb(0 0 0 / 0.55) 79%,
+			rgb(0 0 0 / 0.18) 92%,
+			transparent 100%
+		);
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
+	}
+
+	.hero-image {
+		position: absolute;
+		inset: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center;
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.hero-media:hover .hero-media__stage {
+			transform: scale(1.032);
+		}
+
+		.hero-media:hover .hero-media__lines-art {
+			background-color: var(--color-secondary);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-media__stage {
+			transform: none !important;
+			transition: none;
+		}
+
+		/* Show the finished, full-color portrait with no animation. */
+		.hero-media__lines {
+			display: none;
+		}
+
+		.hero-media__color {
+			-webkit-mask-image: none;
+			mask-image: none;
+		}
+	}
+
+	@media (min-width: 769px) {
+		.hero {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			grid-template-rows: minmax(0, 1fr);
+			align-items: stretch;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.hero {
+			grid-template-columns: 1fr;
+			grid-template-rows: auto minmax(0, 1fr);
+		}
+
+		.hero-content {
+			align-self: start;
+		}
+
+		h1 {
+			font-size: clamp(2.5rem, 16vw, 6rem);
+		}
+	}
+</style>
+
+<script>
+	const media = document.querySelector('[data-reveal]');
+
+	if (media instanceof HTMLElement) {
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+		if (!reducedMotion.matches) {
+			const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+			const SPOTLIGHT_RATIO = 0.26;
+			const FULL_REVEAL_RATIO = 1.6;
+			const STAGE_SCALE = 1.032;
+
+			const box = {
+				left: 0,
+				top: 0,
+				size: 0,
+				cx: 0,
+				cy: 0,
+			};
+
+			const state = {
+				x: 0,
+				y: 0,
+				targetX: 0,
+				targetY: 0,
+				radius: 0,
+				targetRadius: 0,
+			};
+
+			let frame = 0;
+			let lastTime = 0;
+			const lastPointer = { x: 0, y: 0 };
+
+			const measure = () => {
+				const rect = media.getBoundingClientRect();
+				const size = Math.min(rect.width, rect.height);
+
+				box.left = rect.left;
+				box.top = rect.top;
+				box.size = size;
+				box.cx = rect.width / 2;
+				box.cy = rect.height / 2;
+			};
+
+			const setTarget = (clientX, clientY, scale = 1) => {
+				if (!box.size) return false;
+
+				// The artwork is `object-fit: contain`, so the visible square is
+				// centered. Only reveal inside it, never in the empty
+				// letterbox area around the portrait.
+				const half = (box.size * scale) / 2;
+				const relX = clientX - box.left;
+				const relY = clientY - box.top;
+				const inside =
+					relX >= box.cx - half &&
+					relX <= box.cx + half &&
+					relY >= box.cy - half &&
+					relY <= box.cy + half;
+
+				lastPointer.x = clientX;
+				lastPointer.y = clientY;
+				state.targetX = clamp(relX, box.cx - half, box.cx + half);
+				state.targetY = clamp(relY, box.cy - half, box.cy + half);
+
+				return inside;
+			};
+
+			const write = () => {
+				media.style.setProperty('--reveal-x', `${state.x}px`);
+				media.style.setProperty('--reveal-y', `${state.y}px`);
+				media.style.setProperty('--reveal-r', `${state.radius}px`);
+			};
+
+			const tick = (now) => {
+				const dt = Math.min(Math.max(now - lastTime, 0) || 16.67, 64);
+				lastTime = now;
+
+				// Frame-rate independent easing.
+				const positionEase = 1 - Math.pow(1 - 0.2, dt / 16.67);
+				const radiusEase = 1 - Math.pow(1 - 0.16, dt / 16.67);
+
+				state.x += (state.targetX - state.x) * positionEase;
+				state.y += (state.targetY - state.y) * positionEase;
+				state.radius += (state.targetRadius - state.radius) * radiusEase;
+
+				const settledX = Math.abs(state.targetX - state.x) < 0.15;
+				const settledY = Math.abs(state.targetY - state.y) < 0.15;
+				const settledRadius = Math.abs(state.targetRadius - state.radius) < 0.4;
+
+				if (settledX) state.x = state.targetX;
+				if (settledY) state.y = state.targetY;
+				if (settledRadius) state.radius = state.targetRadius;
+
+				write();
+
+				const settled = settledX && settledY && settledRadius;
+
+				if (settled) {
+					frame = 0;
+					lastTime = 0;
+				} else {
+					frame = requestAnimationFrame(tick);
+				}
+			};
+
+			const start = () => {
+				if (!frame) {
+					lastTime = performance.now();
+					frame = requestAnimationFrame(tick);
+				}
+			};
+
+			if (finePointer.matches) {
+				media.addEventListener('pointerenter', (event) => {
+					measure();
+					const inside = setTarget(event.clientX, event.clientY, STAGE_SCALE);
+
+					// Open exactly where the pointer entered instead of sliding in
+					// from the previous position.
+					state.x = state.targetX;
+					state.y = state.targetY;
+					state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+					start();
+				});
+
+				media.addEventListener('pointermove', (event) => {
+					const inside = setTarget(event.clientX, event.clientY, STAGE_SCALE);
+					state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+					start();
+				});
+
+				media.addEventListener('pointerleave', () => {
+					state.targetRadius = 0;
+					start();
+				});
+
+				window.addEventListener(
+					'scroll',
+					() => {
+						measure();
+						if (!box.size) return;
+						const isHovering = media.matches(':hover');
+						const inside = setTarget(
+							lastPointer.x,
+							lastPointer.y,
+							isHovering ? STAGE_SCALE : 1,
+						);
+						state.targetRadius = inside && isHovering ? box.size * SPOTLIGHT_RATIO : 0;
+						start();
+					},
+					{ passive: true },
+				);
+
+				window.addEventListener('resize', () => {
+					measure();
+					if (media.matches(':hover') && box.size) {
+						const inside = setTarget(lastPointer.x, lastPointer.y, STAGE_SCALE);
+						state.targetRadius = inside ? box.size * SPOTLIGHT_RATIO : 0;
+						start();
+					}
+				});
+			} else {
+				// Touch devices: reveal the color once, when the portrait enters
+				// the viewport, instead of running an infinite loop.
+				const revealAll = () => {
+					measure();
+					media.classList.add('is-revealed');
+
+					state.x = box.cx;
+					state.y = box.cy;
+					state.targetX = box.cx;
+					state.targetY = box.cy;
+					state.targetRadius = box.size * FULL_REVEAL_RATIO;
+					start();
+				};
+
+				const observer = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (entry.isIntersecting) {
+								observer.disconnect();
+								revealAll();
+							}
+						}
+					},
+					{ threshold: 0.4 },
+				);
+
+				observer.observe(media);
+
+				// Keep the full-color reveal covering the portrait after an
+				// orientation change or viewport resize.
+				window.addEventListener('resize', () => {
+					if (!media.classList.contains('is-revealed')) return;
+
+					measure();
+					state.x = state.targetX = box.cx;
+					state.y = state.targetY = box.cy;
+					state.radius = state.targetRadius = box.size * FULL_REVEAL_RATIO;
+					write();
+				});
+			}
+		}
+	}
+</script>
