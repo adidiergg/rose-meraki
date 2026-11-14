@@ -91,13 +91,6 @@ const lineMask = await getImage({
 		min-height: 0;
 		overflow: clip;
 		isolation: isolate;
-		/*
-		 * Wide horizontal reveal band. JS keeps the centre and thickness in
-		 * sync with the pointer's Y position, but the defaults keep the mask
-		 * valid (and the band closed) before hydration.
-		 */
-		--reveal-y: 50%;
-		--reveal-h: 0px;
 	}
 
 	.hero-media__stage {
@@ -113,34 +106,6 @@ const lineMask = await getImage({
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
-		/*
-		 * Inverse of the color band: inside the band the tinted line-art steps
-		 * back so the color figure can be read cleanly. When the band collapses
-		 * (--reveal-h: 0px) every stop lands on the same line and the mask stays
-		 * fully opaque, leaving the line-art visible.
-		 */
-		-webkit-mask-image: linear-gradient(
-			to bottom,
-			#000 0,
-			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.5),
-			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.28),
-			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.28),
-			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.5),
-			#000 100%
-		);
-		mask-image: linear-gradient(
-			to bottom,
-			#000 0,
-			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.5),
-			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.28),
-			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.28),
-			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.5),
-			#000 100%
-		);
-		-webkit-mask-repeat: no-repeat;
-		mask-repeat: no-repeat;
-		-webkit-mask-size: 100% 100%;
-		mask-size: 100% 100%;
 	}
 
 	.hero-media__lines-art {
@@ -162,24 +127,8 @@ const lineMask = await getImage({
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
-		-webkit-mask-image: linear-gradient(
-			to bottom,
-			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.5),
-			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.28),
-			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.28),
-			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.5)
-		);
-		mask-image: linear-gradient(
-			to bottom,
-			transparent calc(var(--reveal-y) - var(--reveal-h) * 0.5),
-			#000 calc(var(--reveal-y) - var(--reveal-h) * 0.28),
-			#000 calc(var(--reveal-y) + var(--reveal-h) * 0.28),
-			transparent calc(var(--reveal-y) + var(--reveal-h) * 0.5)
-		);
-		-webkit-mask-repeat: no-repeat;
-		mask-repeat: no-repeat;
-		-webkit-mask-size: 100% 100%;
-		mask-size: 100% 100%;
+		opacity: 0;
+		transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
 	}
 
 	.hero-image {
@@ -199,9 +148,18 @@ const lineMask = await getImage({
 			transform: scale(1.032);
 		}
 
+		.hero-media:hover .hero-media__color {
+			opacity: 1;
+		}
+
 		.hero-media:hover .hero-media__lines-art {
 			background-color: var(--color-secondary);
 		}
+	}
+
+	/* Touch devices get the full-color portrait once it enters the viewport. */
+	.hero-media.is-revealed .hero-media__color {
+		opacity: 1;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -216,8 +174,8 @@ const lineMask = await getImage({
 		}
 
 		.hero-media__color {
-			-webkit-mask-image: none;
-			mask-image: none;
+			opacity: 1;
+			transition: none;
 		}
 	}
 
@@ -252,190 +210,22 @@ const lineMask = await getImage({
 		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 		const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-		if (!reducedMotion.matches) {
-			const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
-			const BAND_RATIO = 0.3;
-			const BAND_MIN = 120;
-			const BAND_MAX = 280;
-			// Wide enough that the band's opaque core covers the whole portrait
-			// on touch devices: 0.28 * 2.4 > half of the contained square.
-			const FULL_REVEAL_RATIO = 2.4;
-			const STAGE_SCALE = 1.032;
-
-			const box = {
-				top: 0,
-				size: 0,
-				cy: 0,
-			};
-
-			const state = {
-				y: 0,
-				targetY: 0,
-				thickness: 0,
-				targetThickness: 0,
-			};
-
-			let frame = 0;
-			let lastTime = 0;
-			const lastPointer = { y: 0 };
-
-			const measure = () => {
-				const rect = media.getBoundingClientRect();
-
-				box.top = rect.top;
-				box.size = Math.min(rect.width, rect.height);
-				box.cy = rect.height / 2;
-			};
-
-			const bandThickness = () =>
-				clamp(box.size * BAND_RATIO, BAND_MIN, BAND_MAX);
-
-			const setTarget = (clientY, scale = 1) => {
-				if (!box.size) return false;
-
-				// The artwork is `object-fit: contain`, so the visible square is
-				// centered. Only reveal inside it, never in the empty
-				// letterbox area around the portrait.
-				const half = (box.size * scale) / 2;
-				const relY = clientY - box.top;
-				const inside = relY >= box.cy - half && relY <= box.cy + half;
-
-				lastPointer.y = clientY;
-				state.targetY = clamp(relY, box.cy - half, box.cy + half);
-
-				return inside;
-			};
-
-			const write = () => {
-				media.style.setProperty('--reveal-y', `${state.y}px`);
-				media.style.setProperty('--reveal-h', `${state.thickness}px`);
-			};
-
-			const tick = (now) => {
-				const dt = Math.min(Math.max(now - lastTime, 0) || 16.67, 64);
-				lastTime = now;
-
-				// Frame-rate independent easing.
-				const positionEase = 1 - Math.pow(1 - 0.2, dt / 16.67);
-				const thicknessEase = 1 - Math.pow(1 - 0.16, dt / 16.67);
-
-				state.y += (state.targetY - state.y) * positionEase;
-				state.thickness +=
-					(state.targetThickness - state.thickness) * thicknessEase;
-
-				const settledY = Math.abs(state.targetY - state.y) < 0.15;
-				const settledThickness =
-					Math.abs(state.targetThickness - state.thickness) < 0.4;
-
-				if (settledY) state.y = state.targetY;
-				if (settledThickness) state.thickness = state.targetThickness;
-
-				write();
-
-				const settled = settledY && settledThickness;
-
-				if (settled) {
-					frame = 0;
-					lastTime = 0;
-				} else {
-					frame = requestAnimationFrame(tick);
-				}
-			};
-
-			const start = () => {
-				if (!frame) {
-					lastTime = performance.now();
-					frame = requestAnimationFrame(tick);
-				}
-			};
-
-			if (finePointer.matches) {
-				media.addEventListener('pointerenter', (event) => {
-					measure();
-					const inside = setTarget(event.clientY, STAGE_SCALE);
-
-					// Open exactly where the pointer entered instead of sliding in
-					// from the previous position.
-					state.y = state.targetY;
-					state.targetThickness = inside ? bandThickness() : 0;
-					start();
-				});
-
-				media.addEventListener('pointermove', (event) => {
-					const inside = setTarget(event.clientY, STAGE_SCALE);
-					state.targetThickness = inside ? bandThickness() : 0;
-					start();
-				});
-
-				media.addEventListener('pointerleave', () => {
-					state.targetThickness = 0;
-					start();
-				});
-
-				window.addEventListener(
-					'scroll',
-					() => {
-						measure();
-						if (!box.size) return;
-						const isHovering = media.matches(':hover');
-						const inside = setTarget(
-							lastPointer.y,
-							isHovering ? STAGE_SCALE : 1,
-						);
-						state.targetThickness = inside && isHovering ? bandThickness() : 0;
-						start();
-					},
-					{ passive: true },
-				);
-
-				window.addEventListener('resize', () => {
-					measure();
-					if (media.matches(':hover') && box.size) {
-						const inside = setTarget(lastPointer.y, STAGE_SCALE);
-						state.targetThickness = inside ? bandThickness() : 0;
-						start();
-					}
-				});
-			} else {
-				// Touch devices: reveal the color once, when the portrait enters
-				// the viewport, instead of running an infinite loop.
-				const revealAll = () => {
-					measure();
-					media.classList.add('is-revealed');
-
-					state.y = box.cy;
-					state.targetY = box.cy;
-					state.targetThickness = box.size * FULL_REVEAL_RATIO;
-					start();
-				};
-
-				const observer = new IntersectionObserver(
-					(entries) => {
-						for (const entry of entries) {
-							if (entry.isIntersecting) {
-								observer.disconnect();
-								revealAll();
-							}
+		if (!reducedMotion.matches && !finePointer.matches) {
+			// Touch devices: paint the full-color portrait once it enters the
+			// viewport. Hover devices use the :hover rule in the stylesheet.
+			const observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (entry.isIntersecting) {
+							observer.disconnect();
+							media.classList.add('is-revealed');
 						}
-					},
-					{ threshold: 0.4 },
-				);
+					}
+				},
+				{ threshold: 0.4 },
+			);
 
-				observer.observe(media);
-
-				// Keep the full-color reveal covering the portrait after an
-				// orientation change or viewport resize.
-				window.addEventListener('resize', () => {
-					if (!media.classList.contains('is-revealed')) return;
-
-					measure();
-					state.y = state.targetY = box.cy;
-					state.thickness = state.targetThickness =
-						box.size * FULL_REVEAL_RATIO;
-					write();
-				});
-			}
+			observer.observe(media);
 		}
 	}
 </script>
