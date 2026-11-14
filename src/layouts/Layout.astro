@@ -4,14 +4,18 @@ import '../styles/tokens.css';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
+		<script is:inline>
+			document.documentElement.classList.add('has-js');
+		</script>
 		<Font cssVariable="--font-instrument-serif" preload />
+		<Font cssVariable="--font-body" />
 		<title>Rose Meraki</title>
 	</head>
 	<body>
@@ -30,5 +34,7 @@ import '../styles/tokens.css';
 	body {
 		background: var(--color-primary);
 		color: var(--color-cream);
+		font-family: var(--font-text);
+		-webkit-font-smoothing: antialiased;
 	}
 </style>

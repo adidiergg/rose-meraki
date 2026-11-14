@@ -1,0 +1,152 @@
+---
+const stats = [
+	{ label: 'Sesiones realizadas', value: '120+' },
+	{ label: 'Años de archivo', value: '08' },
+	{ label: 'Estudio propio', value: '01' },
+];
+---
+
+<section class="studio" id="estudio" aria-labelledby="estudio-title" data-section-reveal>
+	<div class="inner">
+		<p class="eyebrow">El estudio</p>
+
+		<div class="intro">
+			<h2 id="estudio-title">Poner el alma<br />en cada sesión</h2>
+			<div class="copy">
+				<p>
+					Rose Meraki nace de una idea simple: una sesión no se posa, se habita. Trabajamos
+					despacio, con luz natural y decisiones honestas, hasta que el retrato se parece a quien
+					lo protagoniza.
+				</p>
+				<p>
+					Tres principios: escuchar, esperar el gesto y no corregir lo que ya es verdad.
+				</p>
+			</div>
+		</div>
+
+		<dl class="stats">
+			{
+				stats.map((stat) => (
+					<div class="stat">
+						<dt>{stat.label}</dt>
+						<dd>{stat.value}</dd>
+					</div>
+				))
+			}
+		</dl>
+	</div>
+</section>
+
+<style>
+	.studio {
+		box-sizing: border-box;
+		padding: var(--section-block) var(--section-gutter);
+		background: var(--color-primary-light);
+		color: var(--color-cream);
+	}
+
+	.inner {
+		max-width: var(--content-width);
+		margin: 0 auto;
+	}
+
+	.eyebrow {
+		margin: 0 0 clamp(2rem, 4vw, 3.5rem);
+		font-family: var(--font-text);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: rgb(253 244 234 / 0.8);
+	}
+
+	.intro {
+		display: grid;
+		gap: clamp(1.5rem, 4vw, 4rem);
+		padding-bottom: clamp(3rem, 6vw, 5rem);
+	}
+
+	h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: clamp(2.6rem, 7vw, 5.5rem);
+		line-height: 0.92;
+		letter-spacing: -0.02em;
+	}
+
+	.copy {
+		display: grid;
+		gap: 1rem;
+		max-width: 48ch;
+		font-size: clamp(1rem, 1.4vw, 1.15rem);
+		line-height: 1.55;
+	}
+
+	.copy p {
+		margin: 0;
+	}
+
+	.copy p:first-child {
+		color: var(--color-cream);
+	}
+
+	.copy p:last-child {
+		color: rgb(253 244 234 / 0.74);
+	}
+
+	.stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(1rem, 3vw, 3rem);
+		margin: 0;
+		padding-top: clamp(2rem, 4vw, 3rem);
+		border-top: 1px solid rgb(253 244 234 / 0.25);
+	}
+
+	.stat {
+		display: flex;
+		flex-direction: column-reverse;
+		gap: 0.5rem;
+	}
+
+	.stat dt {
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: rgb(253 244 234 / 0.8);
+	}
+
+	.stat dd {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(2.25rem, 5vw, 4.5rem);
+		line-height: 0.9;
+		letter-spacing: -0.02em;
+	}
+
+	@media (min-width: 900px) {
+		.intro {
+			grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+			align-items: start;
+		}
+
+		.copy {
+			padding-top: 0.75rem;
+		}
+	}
+
+	@media (max-width: 600px) {
+		.stats {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.25rem;
+		}
+
+		.stat {
+			flex-direction: row-reverse;
+			align-items: baseline;
+			justify-content: space-between;
+		}
+	}
+</style>

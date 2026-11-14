@@ -11,5 +11,42 @@
 
 	/* Neutral */
 	--color-cream: #fdf4ea;
+	--color-ink: #101010;
 	--color-white: #ffffff;
+
+	/* Typography */
+	--font-display: var(--font-instrument-serif), serif;
+	--font-text: var(--font-body), sans-serif;
+
+	/* Layout */
+	--section-gutter: clamp(1.5rem, 5vw, 5rem);
+	--section-block: clamp(4.5rem, 10vw, 9rem);
+	--content-width: 78rem;
+}
+
+/* Scroll reveal shared by the landing sections. */
+html.has-js [data-section-reveal] {
+	opacity: 0;
+	transform: translateY(2.5rem);
+	transition:
+		opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+		transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html.has-js [data-section-reveal].is-visible {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.has-js [data-section-reveal] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 4px;
 }

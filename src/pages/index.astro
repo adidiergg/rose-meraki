@@ -1,6 +1,9 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import Contact from '../components/Contact.astro';
+import Projects from '../components/Projects.astro';
+import Studio from '../components/Studio.astro';
 import poseLines from '../assets/brand/pose1.png';
 // posecolor1-alpha.png is posecolor1.png with its flat #2f2537 background
 // removed (flood-filled from the outer edges), so it can sit on the page's
@@ -17,37 +20,43 @@ const lineMask = await getImage({
 ---
 
 <Layout>
-	<main class="hero">
-		<div class="hero-content">
-			<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
-		</div>
-		<div
-			class="hero-media"
-			data-reveal
-			role="img"
-			aria-label="Rose Meraki portrait"
-			style={{ '--line-mask': `url("${lineMask.src}")` }}
-		>
-			<div class="hero-media__stage">
-				<div class="hero-media__lines" aria-hidden="true">
-					<div class="hero-media__lines-art"></div>
-				</div>
-				<div class="hero-media__color" aria-hidden="true">
-					<Image
-						class="hero-image"
-						src={poseColor}
-						alt=""
-						widths={[480, 768, 1200, 1600]}
-						sizes="(max-width: 768px) 100vw, 50vw"
-						format="webp"
-						loading="eager"
-						fetchpriority="low"
-						decoding="async"
-						draggable="false"
-					/>
+	<main>
+		<section class="hero">
+			<div class="hero-content">
+				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
+			</div>
+			<div
+				class="hero-media"
+				data-reveal
+				role="img"
+				aria-label="Retrato de Rose Meraki"
+				style={{ '--line-mask': `url("${lineMask.src}")` }}
+			>
+				<div class="hero-media__stage">
+					<div class="hero-media__lines" aria-hidden="true">
+						<div class="hero-media__lines-art"></div>
+					</div>
+					<div class="hero-media__color" aria-hidden="true">
+						<Image
+							class="hero-image"
+							src={poseColor}
+							alt=""
+							widths={[480, 768, 1200, 1600]}
+							sizes="(max-width: 768px) 100vw, 50vw"
+							format="webp"
+							loading="eager"
+							fetchpriority="low"
+							decoding="async"
+							draggable="false"
+						/>
+					</div>
 				</div>
 			</div>
-		</div>
+		</section>
+
+		<Projects />
+		<Studio />
+		<Contact />
 	</main>
 </Layout>
 
@@ -226,6 +235,35 @@ const lineMask = await getImage({
 			);
 
 			observer.observe(media);
+		}
+	}
+</script>
+
+<script>
+	const sections = document.querySelectorAll('[data-section-reveal]');
+	const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+	if (sections.length > 0) {
+		if (reducedMotionPreference.matches) {
+			for (const section of sections) {
+				section.classList.add('is-visible');
+			}
+		} else {
+			const observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (!entry.isIntersecting) continue;
+
+						entry.target.classList.add('is-visible');
+						observer.unobserve(entry.target);
+					}
+				},
+				{ threshold: 0, rootMargin: '0px 0px -8% 0px' },
+			);
+
+			for (const section of sections) {
+				observer.observe(section);
+			}
 		}
 	}
 </script>

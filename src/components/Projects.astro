@@ -1,0 +1,247 @@
+---
+const projects = [
+	{
+		title: 'Prisma',
+		category: 'Sesión editorial',
+		year: '2026',
+		text: 'Color, textura y una mirada que no pide permiso. La luz entra por la izquierda y hace el resto.',
+		toneA: 'var(--color-primary)',
+		toneB: 'var(--color-secondary-dark)',
+	},
+	{
+		title: 'Meraki',
+		category: 'Retrato en estudio',
+		year: '2025',
+		text: 'La calma de un gesto repetido hasta que se vuelve propio. Fondo neutro, silencio y paciencia.',
+		toneA: 'var(--color-primary-light)',
+		toneB: 'var(--color-accent)',
+	},
+];
+---
+
+<section class="projects" id="proyectos" aria-labelledby="proyectos-title" data-section-reveal>
+	<div class="inner">
+		<header class="head">
+			<p class="eyebrow">Sesiones · 2025—2026</p>
+			<h2 id="proyectos-title">Trabajo reciente</h2>
+			<p class="lead">
+				Una selección de sesiones donde la luz, el color y la intuición hacen el trabajo.
+			</p>
+		</header>
+
+		<ol class="grid">
+			{
+				projects.map((project, index) => (
+					<li class="grid__item">
+						<article
+							class="card"
+							style={`--tone-a: ${project.toneA}; --tone-b: ${project.toneB}`}
+						>
+							<div class="card__art" aria-hidden="true">
+								<span class="card__number">{String(index + 1).padStart(2, '0')}</span>
+								<span class="card__orb" />
+							</div>
+							<div class="card__body">
+								<p class="card__meta">
+									<span>{project.category}</span>
+									<span>{project.year}</span>
+								</p>
+								<h3>{project.title}</h3>
+								<p class="card__text">{project.text}</p>
+							</div>
+						</article>
+					</li>
+				))
+			}
+		</ol>
+
+		<p class="note">
+			¿Te imaginas algo así? <a href="#contacto">Hablemos de tu sesión</a>
+		</p>
+	</div>
+</section>
+
+<style>
+	.projects {
+		box-sizing: border-box;
+		padding: var(--section-block) var(--section-gutter);
+		background: var(--color-cream);
+		color: var(--color-primary);
+	}
+
+	.inner {
+		max-width: var(--content-width);
+		margin: 0 auto;
+	}
+
+	.head {
+		display: grid;
+		gap: clamp(1rem, 2.5vw, 2rem);
+		padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
+	}
+
+	.eyebrow {
+		margin: 0;
+		font-family: var(--font-text);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--color-primary-muted);
+	}
+
+	h2 {
+		margin: 0;
+		max-width: 14ch;
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: clamp(2.6rem, 7vw, 5.5rem);
+		line-height: 0.9;
+		letter-spacing: -0.02em;
+	}
+
+	.lead {
+		margin: 0;
+		max-width: 42ch;
+		font-size: clamp(1rem, 1.4vw, 1.2rem);
+		line-height: 1.45;
+		color: var(--color-primary-muted);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: clamp(1.25rem, 3vw, 3rem);
+		margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+		padding: 0;
+		list-style: none;
+	}
+
+	.grid__item {
+		min-width: 0;
+	}
+
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1rem, 2vw, 1.75rem);
+		height: 100%;
+	}
+
+	.card__art {
+		position: relative;
+		aspect-ratio: 4 / 5;
+		overflow: hidden;
+		border-radius: 0.25rem;
+		background:
+			radial-gradient(circle at 22% 18%, var(--color-secondary) 0%, transparent 46%),
+			linear-gradient(155deg, var(--tone-a) 0%, var(--tone-b) 100%);
+		isolation: isolate;
+	}
+
+	.card__orb {
+		position: absolute;
+		right: -18%;
+		bottom: -22%;
+		width: 78%;
+		aspect-ratio: 1;
+		border-radius: 50%;
+		border: 1px solid rgb(253 244 234 / 0.35);
+		box-shadow:
+			0 0 0 2.5rem rgb(253 244 234 / 0.05),
+			0 0 0 6rem rgb(253 244 234 / 0.04);
+	}
+
+	.card__number {
+		position: absolute;
+		top: clamp(1rem, 2.5vw, 2rem);
+		left: clamp(1rem, 2.5vw, 2rem);
+		font-family: var(--font-display);
+		font-size: clamp(1.75rem, 3vw, 2.75rem);
+		line-height: 1;
+		color: var(--color-cream);
+	}
+
+	.card__body {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.card__meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--color-primary-muted);
+	}
+
+	h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: clamp(1.9rem, 3.4vw, 3rem);
+		line-height: 1;
+		letter-spacing: -0.01em;
+	}
+
+	.card__text {
+		margin: 0;
+		max-width: 38ch;
+		font-size: 1rem;
+		line-height: 1.5;
+		color: var(--color-primary-muted);
+	}
+
+	.note {
+		margin: 0;
+		padding-top: clamp(1.5rem, 3vw, 2.5rem);
+		border-top: 1px solid rgb(63 22 103 / 0.15);
+		font-size: 1rem;
+		line-height: 1.5;
+		color: var(--color-primary-muted);
+	}
+
+	.note a {
+		color: var(--color-primary);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.3em;
+		transition: opacity 0.3s ease;
+	}
+
+	.note a:hover {
+		opacity: 0.65;
+	}
+
+	@media (min-width: 900px) {
+		.head {
+			grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+			align-items: end;
+		}
+
+		.head h2 {
+			grid-row: 2;
+			grid-column: 1;
+		}
+
+		.head .lead {
+			grid-row: 2;
+			grid-column: 2;
+			justify-self: end;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.card__art {
+			aspect-ratio: 5 / 6;
+		}
+	}
+</style>

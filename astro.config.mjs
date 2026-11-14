@@ -13,5 +13,20 @@ export default defineConfig({
       cssVariable: '--font-instrument-serif',
       fallbacks: ['serif'],
     },
+    {
+      provider: fontProviders.local(),
+      name: 'Darker Grotesque',
+      cssVariable: '--font-body',
+      fallbacks: ['sans-serif'],
+      options: {
+        variants: [
+          {
+            src: ['./src/assets/fonts/DarkerGrotesque-VariableFont_wght.ttf'],
+            weight: '100 900',
+            style: 'normal',
+          },
+        ],
+      },
+    },
   ],
 });
