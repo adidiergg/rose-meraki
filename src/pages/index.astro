@@ -122,6 +122,9 @@ const heroLineSvg = roseLineRaw
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
+		/* Once the color portrait is fully in, the line layer is retired so no
+		   white strokes are left showing through the artwork. */
+		animation: hero-lines-out 0.3s linear 3.3s forwards;
 	}
 
 	/* The SVG is injected with set:html, so it carries no Astro scope attribute. */
@@ -163,6 +166,13 @@ const heroLineSvg = roseLineRaw
 	@keyframes hero-color-in {
 		to {
 			opacity: 1;
+		}
+	}
+
+	@keyframes hero-lines-out {
+		to {
+			opacity: 0;
+			visibility: hidden;
 		}
 	}
 
