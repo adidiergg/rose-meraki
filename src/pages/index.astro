@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Contact from '../components/Contact.astro';
+import DrawPortrait from '../components/DrawPortrait.astro';
 import Projects from '../components/Projects.astro';
 import Studio from '../components/Studio.astro';
 // rose-color.svg keeps its transparent background, so it sits on the page's
@@ -8,26 +9,6 @@ import Studio from '../components/Studio.astro';
 import roseColor from '../assets/brand/hero/rose-color.svg';
 // The line-art is inlined as raw markup so each path can be drawn on load.
 import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
-
-// Inline the line-art and prepare every path for the draw-in animation:
-// - `pathLength="1"` normalizes each path so a single dash pattern draws it.
-// - `--t` (0–1) staggers the paths by the Y of their first point, so the
-//   drawing sweeps from top to bottom.
-// Both are computed at build time, so the animation also runs without JS.
-const heroLineSvg = roseLineRaw
-	.replace(/<svg([^>]*)>/, (_match, attrs) => {
-		const cleaned = attrs.replace(/\swidth="[^"]*"/, '').replace(/\sheight="[^"]*"/, '');
-		// The initial (hidden) state also lives on the SVG so it renders correctly
-		// even before the stylesheet loads.
-		return `<svg${cleaned} class="hero-draw" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1" stroke-dashoffset="1" aria-hidden="true" focusable="false">`;
-	})
-	.replace(/<path ([^>]*)\/>/g, (_match, attrs) => {
-		const withoutFill = attrs.replace(/(^|\s)fill="[^"]*"/, '$1');
-		const start = withoutFill.match(/\sd="M\s*(-?[\d.]+)[ ,](-?[\d.]+)/);
-		const y = start ? Number.parseFloat(start[2]) : 0;
-		const t = Math.min(1, Math.max(0, y / 1960)).toFixed(3);
-		return `<path ${withoutFill} pathLength="1" style="--t:${t}" />`;
-	});
 ---
 
 <Layout>
@@ -36,23 +17,17 @@ const heroLineSvg = roseLineRaw
 			<div class="hero-content">
 				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
 			</div>
-			<div class="hero-media" role="img" aria-label="Retrato de Rose Meraki">
-				<div class="hero-media__stage">
-					<div class="hero-media__lines" aria-hidden="true" set:html={heroLineSvg} />
-					<div class="hero-media__color" aria-hidden="true" style="opacity: 0">
-						<img
-							class="hero-image"
-							src={roseColor.src}
-							width={roseColor.width}
-							height={roseColor.height}
-							alt=""
-							loading="eager"
-							fetchpriority="high"
-							decoding="async"
-							draggable="false"
-						/>
-					</div>
-				</div>
+			<div class="hero-media">
+				<DrawPortrait
+					lineSvg={roseLineRaw}
+					colorSrc={roseColor.src}
+					colorWidth={roseColor.width}
+					colorHeight={roseColor.height}
+					label="Retrato de Rose Meraki"
+					loading="eager"
+					priority
+					zoom
+				/>
 			</div>
 		</section>
 
@@ -103,117 +78,9 @@ const heroLineSvg = roseLineRaw
 	}
 
 	.hero-media {
-		position: relative;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr);
 		min-height: 0;
-		overflow: clip;
-		isolation: isolate;
-	}
-
-	.hero-media__stage {
-		position: absolute;
-		inset: 0;
-		transform: scale(1);
-		transform-origin: 50% 50%;
-		transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
-		will-change: transform;
-	}
-
-	.hero-media__lines {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		/* Once the color portrait is fully in, the line layer is retired so no
-		   white strokes are left showing through the artwork. */
-		animation: hero-lines-out 0.3s linear 3.3s forwards;
-	}
-
-	/* The SVG is injected with set:html, so it carries no Astro scope attribute. */
-	.hero-media__lines :global(svg) {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	/* Draw-in: every path shares the same normalized dash length (pathLength="1")
-	   and reveals its stroke when its staggered delay starts. */
-	:global(.hero-draw path) {
-		fill: none;
-		stroke: var(--color-white);
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-		stroke-dasharray: 1;
-		stroke-dashoffset: 1;
-		animation: hero-draw 0.6s cubic-bezier(0.65, 0.05, 0, 1) forwards;
-		animation-delay: calc(var(--t) * 1600ms);
-	}
-
-	.hero-media__color {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		opacity: 0;
-		/* Wait for the draw-in (~2.2s) before the color washes over it. */
-		animation: hero-color-in 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) 2.4s forwards;
-	}
-
-	@keyframes hero-draw {
-		to {
-			stroke-dashoffset: 0;
-		}
-	}
-
-	@keyframes hero-color-in {
-		to {
-			opacity: 1;
-		}
-	}
-
-	@keyframes hero-lines-out {
-		to {
-			opacity: 0;
-			visibility: hidden;
-		}
-	}
-
-	.hero-image {
-		position: absolute;
-		inset: 0;
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		object-position: center;
-		user-select: none;
-		-webkit-user-drag: none;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.hero-media:hover .hero-media__stage {
-			transform: scale(1.032);
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.hero-media__stage {
-			transform: none !important;
-			transition: none;
-		}
-
-		/* Show the finished, full-color portrait with no animation. */
-		.hero-media__lines {
-			display: none;
-		}
-
-		:global(.hero-draw path) {
-			animation: none;
-			stroke-dashoffset: 0;
-		}
-
-		.hero-media__color {
-			animation: none;
-			opacity: 1 !important;
-		}
 	}
 
 	@media (min-width: 769px) {
@@ -241,30 +108,42 @@ const heroLineSvg = roseLineRaw
 </style>
 
 <script>
-	const sections = document.querySelectorAll('[data-section-reveal]');
 	const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-	if (sections.length > 0) {
+	// Adds `className` when a target enters the viewport, once.
+	const whenVisible = (
+		targets: NodeListOf<Element>,
+		options: IntersectionObserverInit,
+		className: string,
+	) => {
+		if (targets.length === 0) return;
+
 		if (reducedMotionPreference.matches) {
-			for (const section of sections) {
-				section.classList.add('is-visible');
+			for (const target of targets) {
+				target.classList.add(className);
 			}
-		} else {
-			const observer = new IntersectionObserver(
-				(entries) => {
-					for (const entry of entries) {
-						if (!entry.isIntersecting) continue;
-
-						entry.target.classList.add('is-visible');
-						observer.unobserve(entry.target);
-					}
-				},
-				{ threshold: 0, rootMargin: '0px 0px -8% 0px' },
-			);
-
-			for (const section of sections) {
-				observer.observe(section);
-			}
+			return;
 		}
-	}
+
+		const observer = new IntersectionObserver((entries) => {
+			for (const entry of entries) {
+				if (!entry.isIntersecting) continue;
+
+				entry.target.classList.add(className);
+				observer.unobserve(entry.target);
+			}
+		}, options);
+
+		for (const target of targets) {
+			observer.observe(target);
+		}
+	};
+
+	// Sections fade in on scroll; portraits start their draw-in the same way.
+	whenVisible(
+		document.querySelectorAll('[data-section-reveal]'),
+		{ threshold: 0, rootMargin: '0px 0px -8% 0px' },
+		'is-visible',
+	);
+	whenVisible(document.querySelectorAll('[data-draw]'), { threshold: 0.25 }, 'is-drawn');
 </script>

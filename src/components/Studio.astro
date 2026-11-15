@@ -1,4 +1,8 @@
 ---
+import DrawPortrait from './DrawPortrait.astro';
+import studioColor from '../assets/brand/studio/studio-color.svg';
+import studioLineRaw from '../assets/brand/studio/studio-line.svg?raw';
+
 const stats = [
 	{ label: 'Sesiones realizadas', value: '120+' },
 	{ label: 'Años de archivo', value: '08' },
@@ -7,6 +11,20 @@ const stats = [
 ---
 
 <section class="studio has-glow" id="estudio" aria-labelledby="estudio-title" data-section-reveal>
+	<div class="art">
+		<DrawPortrait
+			lineSvg={studioLineRaw}
+			colorSrc={studioColor.src}
+			colorWidth={studioColor.width}
+			colorHeight={studioColor.height}
+			label="Retrato ilustrado de Rose Meraki"
+			fit="cover"
+			focus="center"
+			loading="lazy"
+			strokeWidth={2.4}
+		/>
+	</div>
+
 	<div class="inner">
 		<p class="eyebrow">El estudio</p>
 
@@ -39,21 +57,51 @@ const stats = [
 
 <style>
 	.studio {
-		--glow-color: rgb(188 157 216 / 0.26);
+		--glow-color: rgb(188 157 216 / 0.2);
 		--glow-size: 40rem;
-		--glow-top: auto;
-		--glow-bottom: -25%;
-		--glow-right: auto;
-		--glow-left: -12%;
+		--glow-top: 12%;
+		--glow-bottom: auto;
+		--glow-right: -12%;
+		--glow-left: auto;
 		box-sizing: border-box;
-		padding: var(--section-block) var(--section-gutter);
+		padding: 0;
 		background: var(--color-primary-light);
 		color: var(--color-cream);
 	}
 
+	/* The portrait sits behind the copy as a large, bleeding backdrop. */
+	.art {
+		position: relative;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr);
+		height: 55svh;
+		min-height: 22rem;
+		-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+	}
+
+	/* Softens the top and bottom edges so the portrait reads as the section's
+	   own background instead of a pasted rectangle. */
+	.art::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to bottom,
+			var(--color-primary-light) 0%,
+			transparent 10%,
+			transparent 88%,
+			var(--color-primary-light) 100%
+		);
+		pointer-events: none;
+	}
+
 	.inner {
+		position: relative;
+		box-sizing: border-box;
 		max-width: var(--content-width);
 		margin: 0 auto;
+		padding: var(--section-block) var(--section-gutter);
 	}
 
 	.eyebrow {
@@ -133,13 +181,63 @@ const stats = [
 	}
 
 	@media (min-width: 900px) {
-		.intro {
-			grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-			align-items: start;
+		.studio {
+			display: grid;
+			grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+			align-items: stretch;
+			min-height: max(44rem, 90vh);
+			padding-block: var(--section-block);
 		}
 
-		.copy {
-			padding-top: 0.75rem;
+		.art {
+			position: absolute;
+			inset-block: 0;
+			inset-inline-start: 0;
+			width: 56%;
+			height: auto;
+			min-height: 0;
+			-webkit-mask-image: linear-gradient(to right, #000 68%, transparent 100%);
+			mask-image: linear-gradient(to right, #000 68%, transparent 100%);
+		}
+
+		.inner {
+			grid-column: 2;
+			align-self: center;
+			width: 100%;
+			max-width: 46rem;
+			margin: 0;
+			padding-block: 0;
+		}
+
+		.intro {
+			gap: clamp(1.5rem, 2.5vw, 2.5rem);
+		}
+	}
+
+	@media (min-width: 900px) and (max-width: 1100px) {
+		.studio {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		}
+
+		.art {
+			width: 50%;
+		}
+
+		.stats {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.25rem;
+		}
+
+		.stat {
+			flex-direction: row-reverse;
+			align-items: baseline;
+			justify-content: space-between;
+		}
+	}
+
+	@media (max-width: 899px) {
+		.inner {
+			padding-top: var(--section-gutter);
 		}
 	}
 

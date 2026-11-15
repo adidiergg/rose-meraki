@@ -1,0 +1,214 @@
+---
+import { prepareLineArt } from '../lib/draw-art';
+
+interface Props {
+	/** Raw contents of the line-art SVG (`?raw` import). */
+	lineSvg: string;
+	/** Built URL of the full-color artwork. */
+	colorSrc: string;
+	colorWidth: number;
+	colorHeight: number;
+	/** Accessible description of the artwork. */
+	label: string;
+	/** `contain` shows the whole drawing, `cover` crops it like a background. */
+	fit?: 'contain' | 'cover';
+	/** Edge kept anchored when `fit` is `cover`. */
+	focus?: 'center' | 'top';
+	loading?: 'eager' | 'lazy';
+	priority?: boolean;
+	/** Scales the artwork slightly on hover. */
+	zoom?: boolean;
+	strokeWidth?: number;
+	/** Animation timings, in ms. */
+	stagger?: number;
+	duration?: number;
+	colorDelay?: number;
+	colorDuration?: number;
+	linesOutDelay?: number;
+	class?: string;
+}
+
+const {
+	lineSvg,
+	colorSrc,
+	colorWidth,
+	colorHeight,
+	label,
+	fit = 'contain',
+	focus = 'center',
+	loading = 'lazy',
+	priority = false,
+	zoom = false,
+	strokeWidth = 2,
+	stagger = 1600,
+	duration = 600,
+	colorDelay = 2400,
+	colorDuration = 900,
+	linesOutDelay = 3300,
+	class: className,
+} = Astro.props;
+
+const preparedSvg = prepareLineArt(lineSvg, { fit, focus, strokeWidth });
+const objectPosition = fit === 'cover' && focus === 'top' ? 'center top' : 'center';
+const timings = [
+	`--draw-stagger:${stagger}ms`,
+	`--draw-duration:${duration}ms`,
+	`--color-delay:${colorDelay}ms`,
+	`--color-duration:${colorDuration}ms`,
+	`--lines-out-delay:${linesOutDelay}ms`,
+].join(';');
+---
+
+<div
+	class:list={['draw-portrait', { 'draw-portrait--zoom': zoom }, className]}
+	role="img"
+	aria-label={label}
+	data-draw
+	style={timings}
+>
+	<div class="draw-portrait__stage">
+		<div class="draw-portrait__lines" aria-hidden="true" set:html={preparedSvg} />
+		<div class="draw-portrait__color" aria-hidden="true">
+			<img
+				class="draw-portrait__image"
+				src={colorSrc}
+				width={colorWidth}
+				height={colorHeight}
+				alt=""
+				loading={loading}
+				fetchpriority={priority ? 'high' : 'auto'}
+				decoding="async"
+				draggable="false"
+				style={`object-fit: ${fit}; object-position: ${objectPosition}`}
+			/>
+		</div>
+	</div>
+</div>
+
+<style>
+	.draw-portrait {
+		position: relative;
+		min-height: 0;
+		overflow: clip;
+		isolation: isolate;
+	}
+
+	.draw-portrait__stage {
+		position: absolute;
+		inset: 0;
+		transform: scale(1);
+		transform-origin: 50% 50%;
+		transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+		will-change: transform;
+	}
+
+	.draw-portrait__lines {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		/* Without JS the finished portrait is shown, so the line layer is retired. */
+		display: none;
+	}
+
+	/* The SVG is injected with set:html, so it carries no Astro scope attribute. */
+	.draw-portrait__lines :global(svg) {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	:global(.draw-art path) {
+		fill: none;
+		stroke: var(--draw-stroke, var(--color-white));
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+	}
+
+	.draw-portrait__color {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		opacity: 1;
+	}
+
+	.draw-portrait__image {
+		position: absolute;
+		inset: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	/* With JS the line layer draws first and then the color washes over it. */
+	:global(html.has-js) .draw-portrait__lines {
+		display: block;
+	}
+
+	:global(html.has-js) .draw-portrait__color {
+		opacity: 0;
+	}
+
+	.draw-portrait.is-drawn :global(.draw-art path) {
+		animation: draw-art-draw var(--draw-duration) cubic-bezier(0.65, 0.05, 0, 1) forwards;
+		animation-delay: calc(var(--t, 0) * var(--draw-stagger));
+	}
+
+	.draw-portrait.is-drawn .draw-portrait__lines {
+		animation: draw-art-lines-out 0.3s linear var(--lines-out-delay) forwards;
+	}
+
+	.draw-portrait.is-drawn .draw-portrait__color {
+		animation: draw-art-color-in var(--color-duration) cubic-bezier(0.22, 0.61, 0.36, 1)
+			var(--color-delay) forwards;
+	}
+
+	@keyframes draw-art-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	@keyframes draw-art-color-in {
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes draw-art-lines-out {
+		to {
+			opacity: 0;
+			visibility: hidden;
+		}
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.draw-portrait--zoom:hover .draw-portrait__stage {
+			transform: scale(1.032);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.draw-portrait__stage {
+			transform: none !important;
+			transition: none;
+		}
+
+		.draw-portrait__lines {
+			display: none !important;
+		}
+
+		.draw-portrait__color {
+			opacity: 1 !important;
+			animation: none !important;
+		}
+
+		.draw-portrait.is-drawn :global(.draw-art path) {
+			animation: none !important;
+			stroke-dashoffset: 0;
+		}
+	}
+</style>
