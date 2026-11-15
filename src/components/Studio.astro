@@ -76,24 +76,6 @@ const stats = [
 		grid-template-rows: minmax(0, 1fr);
 		height: 55svh;
 		min-height: 22rem;
-		-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-	}
-
-	/* Softens the top and bottom edges so the portrait reads as the section's
-	   own background instead of a pasted rectangle. */
-	.art::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(
-			to bottom,
-			var(--color-primary-light) 0%,
-			transparent 10%,
-			transparent 88%,
-			var(--color-primary-light) 100%
-		);
-		pointer-events: none;
 	}
 
 	.inner {
@@ -236,6 +218,27 @@ const stats = [
 	}
 
 	@media (max-width: 899px) {
+		.art {
+			-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+			mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+		}
+
+		/* On small screens the portrait is a band, so it keeps its soft top and
+		   bottom edges. */
+		.art::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(
+				to bottom,
+				var(--color-primary-light) 0%,
+				transparent 10%,
+				transparent 88%,
+				var(--color-primary-light) 100%
+			);
+			pointer-events: none;
+		}
+
 		.inner {
 			padding-top: var(--section-gutter);
 		}
