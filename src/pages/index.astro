@@ -1,22 +1,33 @@
 ---
-import { Image, getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import Contact from '../components/Contact.astro';
 import Projects from '../components/Projects.astro';
 import Studio from '../components/Studio.astro';
-import poseLines from '../assets/brand/pose1.png';
-// posecolor1-alpha.png is posecolor1.png with its flat #2f2537 background
-// removed (flood-filled from the outer edges), so it can sit on the page's
+// rose-color.svg keeps its transparent background, so it sits on the page's
 // purple instead of showing as a dark rectangle.
-import poseColor from '../assets/brand/posecolor1-alpha.png';
+import roseColor from '../assets/brand/hero/rose-color.svg';
+// The line-art is inlined as raw markup so each path can be drawn on load.
+import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 
-// The line-art alpha becomes a CSS mask so it can be tinted with a design token
-// instead of shipping the artwork twice.
-const lineMask = await getImage({
-	src: poseLines,
-	width: 1600,
-	format: 'webp',
-});
+// Inline the line-art and prepare every path for the draw-in animation:
+// - `pathLength="1"` normalizes each path so a single dash pattern draws it.
+// - `--t` (0–1) staggers the paths by the Y of their first point, so the
+//   drawing sweeps from top to bottom.
+// Both are computed at build time, so the animation also runs without JS.
+const heroLineSvg = roseLineRaw
+	.replace(/<svg([^>]*)>/, (_match, attrs) => {
+		const cleaned = attrs.replace(/\swidth="[^"]*"/, '').replace(/\sheight="[^"]*"/, '');
+		// The initial (hidden) state also lives on the SVG so it renders correctly
+		// even before the stylesheet loads.
+		return `<svg${cleaned} class="hero-draw" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1" stroke-dashoffset="1" aria-hidden="true" focusable="false">`;
+	})
+	.replace(/<path ([^>]*)\/>/g, (_match, attrs) => {
+		const withoutFill = attrs.replace(/(^|\s)fill="[^"]*"/, '$1');
+		const start = withoutFill.match(/\sd="M\s*(-?[\d.]+)[ ,](-?[\d.]+)/);
+		const y = start ? Number.parseFloat(start[2]) : 0;
+		const t = Math.min(1, Math.max(0, y / 1960)).toFixed(3);
+		return `<path ${withoutFill} pathLength="1" style="--t:${t}" />`;
+	});
 ---
 
 <Layout>
@@ -25,27 +36,18 @@ const lineMask = await getImage({
 			<div class="hero-content">
 				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
 			</div>
-			<div
-				class="hero-media"
-				data-reveal
-				role="img"
-				aria-label="Retrato de Rose Meraki"
-				style={{ '--line-mask': `url("${lineMask.src}")` }}
-			>
+			<div class="hero-media" role="img" aria-label="Retrato de Rose Meraki">
 				<div class="hero-media__stage">
-					<div class="hero-media__lines" aria-hidden="true">
-						<div class="hero-media__lines-art"></div>
-					</div>
-					<div class="hero-media__color" aria-hidden="true">
-						<Image
+					<div class="hero-media__lines" aria-hidden="true" set:html={heroLineSvg} />
+					<div class="hero-media__color" aria-hidden="true" style="opacity: 0">
+						<img
 							class="hero-image"
-							src={poseColor}
+							src={roseColor.src}
+							width={roseColor.width}
+							height={roseColor.height}
 							alt=""
-							widths={[480, 768, 1200, 1600]}
-							sizes="(max-width: 768px) 100vw, 50vw"
-							format="webp"
 							loading="eager"
-							fetchpriority="low"
+							fetchpriority="high"
 							decoding="async"
 							draggable="false"
 						/>
@@ -122,19 +124,25 @@ const lineMask = await getImage({
 		pointer-events: none;
 	}
 
-	.hero-media__lines-art {
-		position: absolute;
-		inset: 0;
-		background-color: var(--color-white);
-		transition: background-color 0.75s cubic-bezier(0.65, 0.05, 0, 1);
-		-webkit-mask-image: var(--line-mask);
-		mask-image: var(--line-mask);
-		-webkit-mask-repeat: no-repeat;
-		mask-repeat: no-repeat;
-		-webkit-mask-position: center;
-		mask-position: center;
-		-webkit-mask-size: contain;
-		mask-size: contain;
+	/* The SVG is injected with set:html, so it carries no Astro scope attribute. */
+	.hero-media__lines :global(svg) {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	/* Draw-in: every path shares the same normalized dash length (pathLength="1")
+	   and reveals its stroke when its staggered delay starts. */
+	:global(.hero-draw path) {
+		fill: none;
+		stroke: var(--color-white);
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		animation: hero-draw 0.6s cubic-bezier(0.65, 0.05, 0, 1) forwards;
+		animation-delay: calc(var(--t) * 1600ms);
 	}
 
 	.hero-media__color {
@@ -142,7 +150,20 @@ const lineMask = await getImage({
 		inset: 0;
 		pointer-events: none;
 		opacity: 0;
-		transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+		/* Wait for the draw-in (~2.2s) before the color washes over it. */
+		animation: hero-color-in 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) 2.4s forwards;
+	}
+
+	@keyframes hero-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	@keyframes hero-color-in {
+		to {
+			opacity: 1;
+		}
 	}
 
 	.hero-image {
@@ -161,19 +182,6 @@ const lineMask = await getImage({
 		.hero-media:hover .hero-media__stage {
 			transform: scale(1.032);
 		}
-
-		.hero-media:hover .hero-media__color {
-			opacity: 1;
-		}
-
-		.hero-media:hover .hero-media__lines-art {
-			background-color: var(--color-secondary);
-		}
-	}
-
-	/* Touch devices get the full-color portrait once it enters the viewport. */
-	.hero-media.is-revealed .hero-media__color {
-		opacity: 1;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -187,9 +195,14 @@ const lineMask = await getImage({
 			display: none;
 		}
 
+		:global(.hero-draw path) {
+			animation: none;
+			stroke-dashoffset: 0;
+		}
+
 		.hero-media__color {
-			opacity: 1;
-			transition: none;
+			animation: none;
+			opacity: 1 !important;
 		}
 	}
 
@@ -216,33 +229,6 @@ const lineMask = await getImage({
 		}
 	}
 </style>
-
-<script>
-	const media = document.querySelector('[data-reveal]');
-
-	if (media instanceof HTMLElement) {
-		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-		const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-
-		if (!reducedMotion.matches && !finePointer.matches) {
-			// Touch devices: paint the full-color portrait once it enters the
-			// viewport. Hover devices use the :hover rule in the stylesheet.
-			const observer = new IntersectionObserver(
-				(entries) => {
-					for (const entry of entries) {
-						if (entry.isIntersecting) {
-							observer.disconnect();
-							media.classList.add('is-revealed');
-						}
-					}
-				},
-				{ threshold: 0.4 },
-			);
-
-			observer.observe(media);
-		}
-	}
-</script>
 
 <script>
 	const sections = document.querySelectorAll('[data-section-reveal]');
