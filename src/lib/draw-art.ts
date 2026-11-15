@@ -19,8 +19,8 @@ interface PrepareLineArtOptions {
 	 * `cover` crops it like a background image.
 	 */
 	fit?: 'contain' | 'cover';
-	/** Which edge keeps anchored when `fit` is `cover`. */
-	focus?: 'center' | 'top';
+	/** Which edge stays anchored when `fit` is `cover`. */
+	focus?: 'center' | 'top' | 'bottom';
 }
 
 const parseViewBoxHeight = (rawSvg: string): number => {
@@ -36,7 +36,14 @@ export const prepareLineArt = (
 	{ className = 'draw-art', strokeWidth = 2, fit = 'contain', focus = 'center' }: PrepareLineArtOptions = {},
 ): string => {
 	const viewBoxHeight = parseViewBoxHeight(rawSvg);
-	const align = fit === 'cover' ? (focus === 'top' ? 'xMidYMin slice' : 'xMidYMid slice') : 'xMidYMid meet';
+	const align =
+		fit === 'cover'
+			? focus === 'top'
+				? 'xMidYMin slice'
+				: focus === 'bottom'
+					? 'xMidYMax slice'
+					: 'xMidYMid slice'
+			: 'xMidYMid meet';
 
 	return rawSvg
 		.replace(/<svg([^>]*)>/, (_match: string, attrs: string) => {
