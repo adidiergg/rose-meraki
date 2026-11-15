@@ -1,0 +1,122 @@
+---
+import logo from '../assets/m3.svg';
+
+const links = [
+	{ label: 'Estudio', href: '#estudio' },
+	{ label: 'Proyectos', href: '#proyectos' },
+	{ label: 'Contacto', href: '#contacto' },
+];
+---
+
+<header class="site-header">
+	<a class="logo" href="#top" aria-label="Rose Meraki, inicio">
+		<img src={logo.src} alt="" width={logo.width} height={logo.height} />
+	</a>
+
+	<nav aria-label="Principal">
+		<ul>
+			{
+				links.map((link) => (
+					<li>
+						<a href={link.href}>{link.label}</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</header>
+
+<style>
+	.site-header {
+		position: fixed;
+		inset-block-start: 0;
+		inset-inline: 0;
+		z-index: 1000;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: clamp(0.85rem, 2.5vw, 1.25rem) var(--section-gutter);
+		background: transparent;
+		border-bottom: 1px solid transparent;
+		transition:
+			background-color 0.3s ease,
+			border-bottom-color 0.3s ease,
+			-webkit-backdrop-filter 0.3s ease,
+			backdrop-filter 0.3s ease;
+	}
+
+	.site-header.is-scrolled {
+		background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+		-webkit-backdrop-filter: blur(12px);
+		backdrop-filter: blur(12px);
+		border-bottom-color: rgb(253 244 234 / 0.14);
+	}
+
+	.logo {
+		display: inline-flex;
+		line-height: 0;
+	}
+
+	.logo img {
+		width: auto;
+		height: clamp(1.75rem, 2.5vw, 2.4rem);
+	}
+
+	nav ul {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: clamp(1.5rem, 6vw, 4rem);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	nav a {
+		font-family: var(--font-text);
+		font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: rgb(253 244 234 / 0.82);
+		text-decoration: none;
+		transition: color 0.3s ease;
+	}
+
+	nav a:hover {
+		color: var(--color-secondary);
+	}
+
+	@media (max-width: 600px) {
+		.logo img {
+			height: 1.75rem;
+		}
+
+		nav ul {
+			gap: 1.25rem;
+		}
+
+		nav a {
+			font-size: 0.85rem;
+			letter-spacing: 0.12em;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		nav a {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	const header = document.querySelector('.site-header');
+
+	const onScroll = () => {
+		header?.classList.toggle('is-scrolled', window.scrollY > 10);
+	};
+
+	window.addEventListener('scroll', onScroll, { passive: true });
+	onScroll();
+</script>
