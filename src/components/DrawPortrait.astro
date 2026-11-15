@@ -12,8 +12,10 @@ interface Props {
 	label: string;
 	/** `contain` shows the whole drawing, `cover` crops it like a background. */
 	fit?: 'contain' | 'cover';
-	/** Edge kept anchored when `fit` is `cover`. */
-	focus?: 'center' | 'top';
+	/** Edge stays anchored when `fit` is `cover`. */
+	focus?: 'center' | 'top' | 'bottom';
+	/** Optional `focus` for wide screens (≥ 900px), applied by a small script. */
+	focusDesktop?: 'center' | 'top' | 'bottom';
 	loading?: 'eager' | 'lazy';
 	priority?: boolean;
 	/** Scales the artwork slightly on hover. */
@@ -36,6 +38,7 @@ const {
 	label,
 	fit = 'contain',
 	focus = 'center',
+	focusDesktop,
 	loading = 'lazy',
 	priority = false,
 	zoom = false,
@@ -48,8 +51,31 @@ const {
 	class: className,
 } = Astro.props;
 
+// Maps a focus keyword to the crop used by the color `<img>` (`object-position`)
+// and the line-art `<svg>` (`preserveAspectRatio`). Kept in sync with the
+// mapping inside `prepareLineArt` in src/lib/draw-art.ts.
+const resolveFocus = (focus: 'center' | 'top' | 'bottom') => {
+	if (fit !== 'cover') {
+		return { objectPosition: 'center', preserveAspectRatio: 'xMidYMid meet' };
+	}
+	if (focus === 'top') return { objectPosition: 'center top', preserveAspectRatio: 'xMidYMin slice' };
+	if (focus === 'bottom') return { objectPosition: 'center bottom', preserveAspectRatio: 'xMidYMax slice' };
+	return { objectPosition: 'center', preserveAspectRatio: 'xMidYMid slice' };
+};
+
+const base = resolveFocus(focus);
+const wide = focusDesktop ? resolveFocus(focusDesktop) : null;
+const responsiveAttrs = wide
+	? {
+			'data-focus-object-position': base.objectPosition,
+			'data-focus-preserve-aspect-ratio': base.preserveAspectRatio,
+			'data-focus-desktop-object-position': wide.objectPosition,
+			'data-focus-desktop-preserve-aspect-ratio': wide.preserveAspectRatio,
+		}
+	: {};
+
 const preparedSvg = prepareLineArt(lineSvg, { fit, focus, strokeWidth });
-const objectPosition = fit === 'cover' && focus === 'top' ? 'center top' : 'center';
+const objectPosition = base.objectPosition;
 const timings = [
 	`--draw-stagger:${stagger}ms`,
 	`--draw-duration:${duration}ms`,
@@ -64,6 +90,7 @@ const timings = [
 	role="img"
 	aria-label={label}
 	data-draw
+	{...responsiveAttrs}
 	style={timings}
 >
 	<div class="draw-portrait__stage">
@@ -84,6 +111,34 @@ const timings = [
 		</div>
 	</div>
 </div>
+
+<script>
+	// Keeps the color image and the line-art SVG cropped identically when a
+	// portrait switches `focus` at the wide breakpoint (≥ 900px).
+	const wideQuery = window.matchMedia('(min-width: 900px)');
+
+	const applyFocus = () => {
+		const isWide = wideQuery.matches;
+		document.querySelectorAll('[data-draw]').forEach((el) => {
+			if (!el.hasAttribute('data-focus-desktop-object-position')) return;
+
+			const img = el.querySelector('.draw-portrait__image');
+			const svg = el.querySelector('.draw-portrait__lines svg');
+			const objectPosition = isWide
+				? el.getAttribute('data-focus-desktop-object-position')
+				: el.getAttribute('data-focus-object-position');
+			const preserveAspectRatio = isWide
+				? el.getAttribute('data-focus-desktop-preserve-aspect-ratio')
+				: el.getAttribute('data-focus-preserve-aspect-ratio');
+
+			if (img) img.style.objectPosition = objectPosition;
+			if (svg) svg.setAttribute('preserveAspectRatio', preserveAspectRatio);
+		});
+	};
+
+	wideQuery.addEventListener('change', applyFocus);
+	applyFocus();
+</script>
 
 <style>
 	.draw-portrait {
