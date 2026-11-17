@@ -105,11 +105,11 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 	@media (max-width: 768px) {
 		.hero {
 			grid-template-columns: 1fr;
-			grid-template-rows: auto minmax(0, 1fr);
+			grid-template-rows: minmax(0, 1fr);
 		}
 
 		.hero-content {
-			align-self: start;
+			display: none;
 		}
 
 		.hero-media {
@@ -120,10 +120,6 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 			margin-inline: -18%;
 			-webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
 			mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
-		}
-
-		h1 {
-			font-size: clamp(2.5rem, 16vw, 6rem);
 		}
 	}
 </style>
