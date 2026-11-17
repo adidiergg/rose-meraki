@@ -3,6 +3,7 @@ import logo from '../assets/m3.svg';
 
 const links = [
 	{ label: 'Estudio', href: '#estudio' },
+	{ label: 'Sobre mí', href: '#sobre-mi' },
 	{ label: 'Proyectos', href: '#proyectos' },
 	{ label: 'Contacto', href: '#contacto' },
 ];
@@ -11,9 +12,22 @@ const links = [
 <header class="site-header">
 	<a class="logo" href="#top" aria-label="Rose Meraki, inicio">
 		<img src={logo.src} alt="" width={logo.width} height={logo.height} />
+		<span class="logo__wordmark">Rose Meraki</span>
 	</a>
 
-	<nav aria-label="Principal">
+	<button
+		class="nav-toggle"
+		type="button"
+		aria-expanded="false"
+		aria-controls="site-nav"
+		aria-label="Abrir menú"
+	>
+		<span class="nav-toggle__bar" aria-hidden="true"></span>
+		<span class="nav-toggle__bar" aria-hidden="true"></span>
+		<span class="nav-toggle__bar" aria-hidden="true"></span>
+	</button>
+
+	<nav id="site-nav" class="site-nav" aria-label="Principal">
 		<ul>
 			{
 				links.map((link) => (
@@ -42,20 +56,30 @@ const links = [
 		transition:
 			background-color 0.3s ease,
 			border-bottom-color 0.3s ease,
+			transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
 			-webkit-backdrop-filter 0.3s ease,
 			backdrop-filter 0.3s ease;
 	}
 
-	.site-header.is-scrolled {
+	.site-header.is-scrolled,
+	.site-header.is-open {
 		background: color-mix(in srgb, var(--color-primary) 55%, transparent);
 		-webkit-backdrop-filter: blur(12px);
 		backdrop-filter: blur(12px);
 		border-bottom-color: rgb(253 244 234 / 0.14);
 	}
 
+	/* Ocultar el header al hacer scroll hacia abajo. */
+	.site-header.is-hidden {
+		transform: translateY(-100%);
+	}
+
 	.logo {
 		display: inline-flex;
-		line-height: 0;
+		align-items: center;
+		gap: 0.65rem;
+		line-height: 1;
+		text-decoration: none;
 	}
 
 	.logo img {
@@ -63,7 +87,69 @@ const links = [
 		height: clamp(1.75rem, 2.5vw, 2.4rem);
 	}
 
-	nav ul {
+	.logo__wordmark {
+		display: none;
+		font-family: var(--font-display);
+		font-size: 1.45rem;
+		line-height: 1;
+		letter-spacing: -0.01em;
+		color: var(--color-secondary);
+		white-space: nowrap;
+	}
+
+	.nav-toggle {
+		display: none;
+		position: relative;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0;
+		border: 0;
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--color-cream);
+		cursor: pointer;
+	}
+
+	.nav-toggle__bar {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 1.5rem;
+		height: 2px;
+		margin-left: -0.75rem;
+		margin-top: -1px;
+		border-radius: 2px;
+		background: currentColor;
+		transition:
+			transform 0.3s ease,
+			opacity 0.3s ease;
+	}
+
+	.nav-toggle__bar:nth-child(1) {
+		transform: translateY(-7px);
+	}
+
+	.nav-toggle__bar:nth-child(2) {
+		transform: translateY(0);
+	}
+
+	.nav-toggle__bar:nth-child(3) {
+		transform: translateY(7px);
+	}
+
+	.site-header.is-open .nav-toggle__bar:nth-child(1) {
+		transform: rotate(45deg);
+	}
+
+	.site-header.is-open .nav-toggle__bar:nth-child(2) {
+		opacity: 0;
+	}
+
+	.site-header.is-open .nav-toggle__bar:nth-child(3) {
+		transform: rotate(-45deg);
+	}
+
+	.site-nav ul {
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
@@ -73,7 +159,7 @@ const links = [
 		list-style: none;
 	}
 
-	nav a {
+	.site-nav a {
 		font-family: var(--font-text);
 		font-size: clamp(0.95rem, 1.6vw, 1.2rem);
 		font-weight: 600;
@@ -84,27 +170,85 @@ const links = [
 		transition: color 0.3s ease;
 	}
 
-	nav a:hover {
+	.site-nav a:hover {
 		color: var(--color-secondary);
+	}
+
+	@media (max-width: 768px) {
+		.logo__wordmark {
+			display: inline;
+		}
+
+		.nav-toggle {
+			display: inline-flex;
+		}
+
+		.site-nav {
+			position: absolute;
+			inset-inline: 0;
+			top: 100%;
+			max-height: 0;
+			overflow: hidden;
+			visibility: hidden;
+			opacity: 0;
+			transform: translateY(-0.5rem);
+			background: color-mix(in srgb, var(--color-primary) 92%, transparent);
+			-webkit-backdrop-filter: blur(16px);
+			backdrop-filter: blur(16px);
+			border-bottom: 1px solid rgb(253 244 234 / 0.14);
+			transition:
+				max-height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+				opacity 0.3s ease,
+				transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+				visibility 0s linear 0.35s;
+		}
+
+		.site-header.is-open .site-nav {
+			max-height: 24rem;
+			visibility: visible;
+			opacity: 1;
+			transform: none;
+			transition:
+				max-height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+				opacity 0.3s ease,
+				transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+				visibility 0s linear 0s;
+		}
+
+		.site-nav ul {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0;
+			padding: 0.5rem var(--section-gutter) 1.25rem;
+		}
+
+		.site-nav li {
+			border-bottom: 1px solid rgb(253 244 234 / 0.1);
+		}
+
+		.site-nav li:last-child {
+			border-bottom: 0;
+		}
+
+		.site-nav a {
+			display: block;
+			padding: 1rem 0;
+			font-size: 1.05rem;
+			letter-spacing: 0.16em;
+		}
 	}
 
 	@media (max-width: 600px) {
 		.logo img {
 			height: 1.75rem;
 		}
-
-		nav ul {
-			gap: 1.25rem;
-		}
-
-		nav a {
-			font-size: 0.85rem;
-			letter-spacing: 0.12em;
-		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		nav a {
+		.site-header,
+		.site-nav,
+		.nav-toggle__bar,
+		.site-nav a {
 			transition: none;
 		}
 	}
@@ -112,10 +256,66 @@ const links = [
 
 <script>
 	const header = document.querySelector('.site-header');
+	const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+	const nav = document.querySelector('.site-nav');
+	const desktopQuery = window.matchMedia('(min-width: 769px)');
+
+	let lastScrollY = window.scrollY;
+
+	const setMenu = (open: boolean) => {
+		header?.classList.toggle('is-open', open);
+		toggle?.setAttribute('aria-expanded', String(open));
+		toggle?.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+
+		// El header nunca se oculta mientras el menú está abierto.
+		if (open) {
+			header?.classList.remove('is-hidden');
+		}
+	};
 
 	const onScroll = () => {
-		header?.classList.toggle('is-scrolled', window.scrollY > 10);
+		const y = window.scrollY;
+		const scrollingDown = y > lastScrollY;
+		const pastThreshold = y > 120;
+		const menuOpen = header?.classList.contains('is-open') ?? false;
+
+		header?.classList.toggle('is-scrolled', y > 10);
+
+		// En móvil el header no se oculta al hacer scroll hacia abajo.
+		const shouldHide = desktopQuery.matches && !menuOpen && pastThreshold && scrollingDown;
+		header?.classList.toggle('is-hidden', shouldHide);
+
+		lastScrollY = y;
 	};
+
+	toggle?.addEventListener('click', () => {
+		const isOpen = header?.classList.contains('is-open') ?? false;
+		setMenu(!isOpen);
+	});
+
+	// Cerrar el menú al pulsar un enlace.
+	nav?.addEventListener('click', (event) => {
+		const target = event.target as Element | null;
+		if (target?.closest('a')) {
+			setMenu(false);
+		}
+	});
+
+	// Cerrar el menú con Escape.
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
+			setMenu(false);
+		}
+	});
+
+	// Cerrar el menú al volver a escritorio, y re-mostrar el header al pasar a móvil.
+	desktopQuery.addEventListener('change', (event) => {
+		if (event.matches) {
+			setMenu(false);
+		} else {
+			header?.classList.remove('is-hidden');
+		}
+	});
 
 	window.addEventListener('scroll', onScroll, { passive: true });
 	onScroll();

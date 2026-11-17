@@ -22,6 +22,8 @@
 	--section-gutter: clamp(1.5rem, 5vw, 5rem);
 	--section-block: clamp(4.5rem, 10vw, 9rem);
 	--content-width: 78rem;
+	/* Fixed header height + breathing room, so the hero clears the nav. */
+	--header-height: clamp(4rem, 8vw, 5.25rem);
 }
 
 /* Scroll reveal shared by the landing sections. */
