@@ -5,11 +5,11 @@ import DrawPortrait from '../components/DrawPortrait.astro';
 import Header from '../components/Header.astro';
 import Projects from '../components/Projects.astro';
 import Studio from '../components/Studio.astro';
-// rose-color.svg keeps its transparent background, so it sits on the page's
+// m1.png keeps its transparent background, so it sits on the page's
 // purple instead of showing as a dark rectangle.
-import roseColor from '../assets/brand/hero/rose-color.svg';
+import m1 from '../assets/m1.png';
 // The line-art is inlined as raw markup so each path can be drawn on load.
-import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
+import m1LineRaw from '../assets/m1.svg?raw';
 ---
 
 <Layout>
@@ -21,15 +21,14 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 			</div>
 			<div class="hero-media">
 				<DrawPortrait
-					lineSvg={roseLineRaw}
-					colorSrc={roseColor.src}
-					colorWidth={roseColor.width}
-					colorHeight={roseColor.height}
+					lineSvg={m1LineRaw}
+					colorSrc={m1.src}
+					colorWidth={m1.width}
+					colorHeight={m1.height}
 					label="Retrato de Rose Meraki"
-					fit="cover"
+					fit="contain"
 					loading="eager"
 					priority
-					zoom
 				/>
 			</div>
 		</section>
@@ -51,7 +50,7 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 		height: 100dvh;
 		min-height: 100dvh;
 		display: grid;
-		padding: 0;
+		padding: var(--header-height) 0 0;
 		overflow: hidden;
 	}
 
@@ -82,16 +81,13 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 
 	.hero-media {
 		position: absolute;
-		inset-block: 0;
+		inset-block-start: var(--header-height);
+		inset-block-end: 0;
 		inset-inline-end: -8vw;
 		z-index: -1;
 		display: grid;
 		grid-template-rows: minmax(0, 1fr);
 		width: 75%;
-		/* The portrait bleeds off the top, right and bottom edges and dissolves
-		   into the purple on the left, so it reads as the hero's backdrop. */
-		-webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 14%, #000 22%);
-		mask-image: linear-gradient(to right, transparent 0%, transparent 14%, #000 22%);
 	}
 
 	@media (min-width: 769px) {
