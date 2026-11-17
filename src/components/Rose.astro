@@ -1,0 +1,117 @@
+---
+import DrawPortrait from './DrawPortrait.astro';
+import roseColor from '../assets/brand/rose/rose-color.svg';
+import roseLineRaw from '../assets/brand/rose/rose-line.svg?raw';
+---
+
+<section class="rose has-glow" id="sobre-mi" aria-labelledby="rose-title" data-section-reveal>
+	<div class="inner">
+		<div class="content">
+			<p class="eyebrow">Sobre mí</p>
+			<h2 id="rose-title">La mirada<br />de Rose</h2>
+			<div class="copy">
+				<p>
+					Detrás de cada retrato hay una conversación sin prisa. Fotografío gestos, no
+					poses; busco la luz que ya está en la habitación y la dejo hacer su trabajo.
+				</p>
+			</div>
+		</div>
+
+		<div class="art">
+			<DrawPortrait
+				lineSvg={roseLineRaw}
+				colorSrc={roseColor.src}
+				colorWidth={roseColor.width}
+				colorHeight={roseColor.height}
+				label="Retrato de Rose Meraki"
+				fit="contain"
+				loading="lazy"
+				strokeWidth={2.4}
+			/>
+		</div>
+	</div>
+</section>
+
+<style>
+	.rose {
+		--glow-color: rgb(63 22 103 / 0.1);
+		--glow-size: 38rem;
+		--glow-top: -12%;
+		--glow-right: auto;
+		--glow-left: -12%;
+		box-sizing: border-box;
+		padding: var(--section-block) var(--section-gutter);
+		background: var(--color-secondary);
+		color: var(--color-primary);
+	}
+
+	.inner {
+		max-width: var(--content-width);
+		margin: 0 auto;
+		display: grid;
+		gap: clamp(2rem, 5vw, 4rem);
+		align-items: center;
+	}
+
+	.content {
+		display: grid;
+		gap: clamp(1rem, 2.5vw, 2rem);
+	}
+
+	.eyebrow {
+		margin: 0;
+		font-family: var(--font-text);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--color-primary-muted);
+	}
+
+	h2 {
+		margin: 0;
+		max-width: 12ch;
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: clamp(2.6rem, 7vw, 5.5rem);
+		line-height: 0.9;
+		letter-spacing: -0.02em;
+	}
+
+	.copy {
+		max-width: 46ch;
+	}
+
+	.copy p {
+		margin: 0;
+		font-size: clamp(1rem, 1.4vw, 1.2rem);
+		line-height: 1.55;
+		/* Primary sobre lavanda para cumplir contraste AA en texto de cuerpo. */
+		color: var(--color-primary);
+	}
+
+	.art {
+		/* The line-art is drawn in a light tone by default; on this light
+		   backdrop it's redrawn in the deep purple so the sketch stays visible. */
+		--draw-stroke: var(--color-primary);
+		position: relative;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr);
+		height: 60svh;
+		min-height: 24rem;
+		order: -1;
+	}
+
+	@media (min-width: 900px) {
+		.inner {
+			grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+			gap: clamp(2rem, 6vw, 5rem);
+		}
+
+		.art {
+			order: 0;
+			height: min(76vh, 42rem);
+			min-height: 0;
+		}
+	}
+</style>
