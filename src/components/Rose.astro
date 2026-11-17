@@ -1,7 +1,7 @@
 ---
 import DrawPortrait from './DrawPortrait.astro';
-import roseColor from '../assets/brand/hero/rose-color.svg';
-import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
+import roseColor from '../assets/brand/rose/rose-color.svg';
+import roseLineRaw from '../assets/brand/rose/rose-line.svg?raw';
 ---
 
 <section class="rose has-glow" id="sobre-mi" aria-labelledby="rose-title" data-section-reveal>
@@ -86,7 +86,8 @@ import roseLineRaw from '../assets/brand/hero/rose-line.svg?raw';
 		margin: 0;
 		font-size: clamp(1rem, 1.4vw, 1.2rem);
 		line-height: 1.55;
-		color: var(--color-primary-muted);
+		/* Primary sobre lavanda para cumplir contraste AA en texto de cuerpo. */
+		color: var(--color-primary);
 	}
 
 	.art {
