@@ -6,11 +6,11 @@ import Header from '../components/Header.astro';
 import Projects from '../components/Projects.astro';
 import Rose from '../components/Rose.astro';
 import Studio from '../components/Studio.astro';
-// m1.png keeps its transparent background, so it sits on the page's
+// hero-color.webp keeps its transparent background, so it sits on the page's
 // purple instead of showing as a dark rectangle.
-import m1 from '../assets/m1.png';
+import heroColor from '../assets/artwork/hero/hero-color.webp';
 // The line-art is inlined as raw markup so each path can be drawn on load.
-import m1LineRaw from '../assets/m1.svg?raw';
+import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 ---
 
 <Layout>
@@ -22,10 +22,10 @@ import m1LineRaw from '../assets/m1.svg?raw';
 			</div>
 			<div class="hero-media">
 				<DrawPortrait
-					lineSvg={m1LineRaw}
-					colorSrc={m1.src}
-					colorWidth={m1.width}
-					colorHeight={m1.height}
+					lineSvg={heroLineRaw}
+					colorSrc={heroColor.src}
+					colorWidth={heroColor.width}
+					colorHeight={heroColor.height}
 					label="Retrato de Rose Meraki"
 					fit="contain"
 					loading="eager"
@@ -116,8 +116,6 @@ import m1LineRaw from '../assets/m1.svg?raw';
 			z-index: auto;
 			width: 136%;
 			margin-inline: -18%;
-			-webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
-			mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
 		}
 	}
 </style>
