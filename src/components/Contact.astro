@@ -1,8 +1,16 @@
 ---
+import DotPattern from './DotPattern.astro';
+
 const year = new Date().getFullYear();
 ---
 
 <section class="contact has-glow" id="contacto" aria-labelledby="contacto-title" data-section-reveal>
+	<div class="dot-cluster dot-cluster--edge" aria-hidden="true">
+		<DotPattern columns={3} rows={4} opacity={0.5} />
+	</div>
+	<div class="dot-cluster dot-cluster--corner" aria-hidden="true">
+		<DotPattern columns={5} rows={3} opacity={0.46} />
+	</div>
 	<div class="inner">
 		<p class="eyebrow">Contacto</p>
 
@@ -48,8 +56,23 @@ const year = new Date().getFullYear();
 	}
 
 	.inner {
+		position: relative;
+		z-index: 1;
 		max-width: var(--content-width);
 		margin: 0 auto;
+	}
+
+	/* Dark close: light dots in the padding, clear of the headline and the footer line. */
+	.dot-cluster--edge {
+		top: 1.15rem;
+		right: var(--section-gutter);
+		width: 2rem;
+	}
+
+	.dot-cluster--corner {
+		bottom: 1.15rem;
+		left: var(--section-gutter);
+		width: 4.5rem;
 	}
 
 	.eyebrow {
@@ -171,6 +194,17 @@ const year = new Date().getFullYear();
 		text-transform: uppercase;
 		/* cream al 55% sobre ink (#101010) queda en 5.79:1. */
 		color: color-mix(in srgb, var(--color-cream) 55%, transparent);
+	}
+
+	@media (max-width: 600px) {
+		.dot-cluster--edge {
+			display: none;
+		}
+
+		.dot-cluster--corner {
+			bottom: 0.7rem;
+			width: 3rem;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

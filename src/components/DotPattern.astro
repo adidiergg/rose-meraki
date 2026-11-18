@@ -1,0 +1,83 @@
+---
+interface Props {
+	/** Dots across the cluster. */
+	columns?: number;
+	/** Dots down the cluster. */
+	rows?: number;
+	/** Center-to-center distance, in the same units as `size`. */
+	spacing?: number;
+	/** Dot diameter, in the same units as `spacing`. */
+	size?: number;
+	/** Any CSS color. Defaults to the cream token. */
+	color?: string;
+	/** 0–1. Kept well below 1 so the cluster stays quiet. */
+	opacity?: number;
+	class?: string;
+}
+
+const {
+	columns = 5,
+	rows = 3,
+	spacing = 8,
+	size = 2.4,
+	color = 'var(--color-cream)',
+	opacity = 0.55,
+	class: className,
+} = Astro.props;
+
+const count = (value: number, fallback: number) => {
+	const n = Math.floor(value);
+	return Number.isFinite(n) && n > 0 ? n : fallback;
+};
+
+const positive = (value: number, fallback: number) =>
+	Number.isFinite(value) && value > 0 ? value : fallback;
+
+const cols = count(columns, 5);
+const lineCount = count(rows, 3);
+const gap = positive(spacing, 8);
+const diameter = positive(size, 2.4);
+const radius = diameter / 2;
+const vbWidth = (cols - 1) * gap + diameter;
+const vbHeight = (lineCount - 1) * gap + diameter;
+const alpha = Number.isFinite(opacity) ? Math.min(1, Math.max(0, opacity)) : 0.55;
+
+const dots = Array.from({ length: lineCount * cols }, (_, index) => {
+	const column = index % cols;
+	const row = Math.floor(index / cols);
+	return {
+		cx: radius + column * gap,
+		cy: radius + row * gap,
+	};
+});
+---
+
+<!--
+	Rendered size comes from the parent's width. `size` and `spacing` only set
+	the dot-to-gap ratio; the cluster scales as one SVG.
+-->
+<svg
+	class:list={['dot-pattern', className]}
+	style={{ color, opacity: alpha }}
+	viewBox={`0 0 ${vbWidth} ${vbHeight}`}
+	fill="currentColor"
+	aria-hidden="true"
+	focusable="false"
+>
+	{
+		dots.map(({ cx, cy }) => (
+			<circle cx={cx} cy={cy} r={radius} />
+		))
+	}
+</svg>
+
+<style>
+	.dot-pattern {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		pointer-events: none;
+		user-select: none;
+	}
+</style>

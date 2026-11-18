@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Contact from '../components/Contact.astro';
+import DotPattern from '../components/DotPattern.astro';
 import DrawPortrait from '../components/DrawPortrait.astro';
 import Header from '../components/Header.astro';
 import Projects from '../components/Projects.astro';
@@ -17,6 +18,15 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 	<Header />
 	<main id="contenido" tabindex="-1">
 		<section class="hero has-glow" id="top">
+			<div class="dot-cluster dot-cluster--top" aria-hidden="true">
+				<DotPattern columns={5} rows={3} color="var(--color-white)" opacity={0.72} />
+			</div>
+			<div class="dot-cluster dot-cluster--edge" aria-hidden="true">
+				<DotPattern columns={3} rows={4} color="var(--color-white)" opacity={0.72} />
+			</div>
+			<div class="dot-cluster dot-cluster--foot" aria-hidden="true">
+				<DotPattern columns={5} rows={3} color="var(--color-white)" opacity={0.62} />
+			</div>
 			<div class="hero-content">
 				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
 			</div>
@@ -61,8 +71,29 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 	}
 
 	.hero-content {
+		position: relative;
+		z-index: 1;
 		align-self: center;
 		padding: clamp(1.5rem, 5vw, 5rem);
+	}
+
+	/* Brand-sheet clusters, kept in the purple field around the portrait. */
+	.dot-cluster--top {
+		top: calc(var(--header-height) + 1.35rem);
+		left: clamp(var(--section-gutter), 22vw, 22rem);
+		width: 4.6rem;
+	}
+
+	.dot-cluster--edge {
+		top: 32%;
+		right: clamp(0.85rem, 2vw, 1.75rem);
+		width: 2rem;
+	}
+
+	.dot-cluster--foot {
+		left: var(--section-gutter);
+		bottom: clamp(1.25rem, 3.5vh, 2.75rem);
+		width: 4.6rem;
 	}
 
 	h1 {
@@ -108,6 +139,23 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 		.hero {
 			grid-template-columns: 1fr;
 			grid-template-rows: minmax(0, 1fr);
+		}
+
+		/* The portrait fills the width, so the edge cluster would sit on the drawing. */
+		.dot-cluster--edge {
+			display: none;
+		}
+
+		.dot-cluster--top {
+			left: 50%;
+			width: 3.35rem;
+			transform: translateX(-50%);
+		}
+
+		.dot-cluster--foot {
+			left: 1rem;
+			bottom: 1rem;
+			width: 3.35rem;
 		}
 
 		/* Único h1 de la página: oculto a la vista, disponible para tecnología de asistencia. */

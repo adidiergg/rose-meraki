@@ -1,4 +1,5 @@
 ---
+import DotPattern from './DotPattern.astro';
 import DrawPortrait from './DrawPortrait.astro';
 import studioColor from '../assets/artwork/studio/studio-color.svg';
 import studioLineRaw from '../assets/artwork/studio/studio-line.svg?raw';
@@ -11,6 +12,12 @@ const stats = [
 ---
 
 <section class="studio has-glow" id="estudio" aria-labelledby="estudio-title" data-section-reveal>
+	<div class="dot-cluster dot-cluster--corner" aria-hidden="true">
+		<DotPattern columns={5} rows={3} opacity={0.58} />
+	</div>
+	<div class="dot-cluster dot-cluster--edge" aria-hidden="true">
+		<DotPattern columns={3} rows={4} opacity={0.5} />
+	</div>
 	<div class="art">
 		<DrawPortrait
 			lineSvg={studioLineRaw}
@@ -73,6 +80,7 @@ const stats = [
 	/* The portrait sits behind the copy as a large, bleeding backdrop. */
 	.art {
 		position: relative;
+		z-index: 1;
 		display: grid;
 		grid-template-rows: minmax(0, 1fr);
 		height: 55svh;
@@ -81,6 +89,7 @@ const stats = [
 
 	.inner {
 		position: relative;
+		z-index: 1;
 		box-sizing: border-box;
 		max-width: var(--content-width);
 		margin: 0 auto;
@@ -163,6 +172,19 @@ const stats = [
 		letter-spacing: -0.02em;
 	}
 
+	/* The portrait owns the left side, so both clusters sit in the open right margin. */
+	.dot-cluster--corner {
+		top: clamp(1rem, 2.5vw, 2.25rem);
+		right: clamp(1rem, 2.5vw, 2.25rem);
+		width: 4.5rem;
+	}
+
+	.dot-cluster--edge {
+		right: clamp(1rem, 2.5vw, 2.25rem);
+		bottom: clamp(0.65rem, 1.5vw, 1.25rem);
+		width: 2rem;
+	}
+
 	@media (min-width: 900px) {
 		.studio {
 			display: grid;
@@ -219,6 +241,17 @@ const stats = [
 	}
 
 	@media (max-width: 899px) {
+		/* The portrait becomes a full-bleed band, so the top cluster would land on it. */
+		.dot-cluster--corner {
+			display: none;
+		}
+
+		.dot-cluster--edge {
+			right: 0.85rem;
+			bottom: 0.6rem;
+			width: 1.35rem;
+		}
+
 		.art {
 			-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
 			mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);

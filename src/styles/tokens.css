@@ -83,3 +83,13 @@ html.has-js [data-section-reveal].is-visible {
 	filter: blur(10px);
 	pointer-events: none;
 }
+
+/* Small decorative clusters from the brand sheet. Each section places its own
+   `.dot-cluster` in open padding or a corner. Copy and artwork use z-index: 1
+   so the dots stay behind the reading text. */
+.dot-cluster {
+	position: absolute;
+	z-index: 0;
+	pointer-events: none;
+	user-select: none;
+}

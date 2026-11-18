@@ -1,10 +1,17 @@
 ---
+import DotPattern from './DotPattern.astro';
 import DrawPortrait from './DrawPortrait.astro';
 import roseColor from '../assets/artwork/rose/rose-color.svg';
 import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 ---
 
 <section class="rose has-glow" id="sobre-mi" aria-labelledby="rose-title" data-section-reveal>
+	<div class="dot-cluster dot-cluster--edge" aria-hidden="true">
+		<DotPattern columns={3} rows={4} color="var(--color-primary)" opacity={0.34} />
+	</div>
+	<div class="dot-cluster dot-cluster--corner" aria-hidden="true">
+		<DotPattern columns={5} rows={3} color="var(--color-primary)" opacity={0.34} />
+	</div>
 	<div class="inner">
 		<div class="content">
 			<p class="eyebrow">Sobre mí</p>
@@ -46,11 +53,26 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 	}
 
 	.inner {
+		position: relative;
+		z-index: 1;
 		max-width: var(--content-width);
 		margin: 0 auto;
 		display: grid;
 		gap: clamp(2rem, 5vw, 4rem);
 		align-items: center;
+	}
+
+	/* Light field: purple dots, held inside the section padding so they miss the type. */
+	.dot-cluster--edge {
+		top: 1.15rem;
+		right: var(--section-gutter);
+		width: 2rem;
+	}
+
+	.dot-cluster--corner {
+		bottom: 1.15rem;
+		left: var(--section-gutter);
+		width: 4.5rem;
 	}
 
 	.content {
@@ -104,6 +126,20 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 		height: 60svh;
 		min-height: 24rem;
 		order: -1;
+	}
+
+	@media (max-width: 600px) {
+		.dot-cluster--edge {
+			display: none;
+		}
+
+		/* The copy fills the left edge here, so the cluster moves to the opposite corner. */
+		.dot-cluster--corner {
+			left: auto;
+			right: 0.85rem;
+			bottom: 0.7rem;
+			width: 2.75rem;
+		}
 	}
 
 	@media (min-width: 900px) {
