@@ -241,15 +241,23 @@ const stats = [
 	}
 
 	@media (max-width: 899px) {
-		/* The portrait becomes a full-bleed band, so the top cluster would land on it. */
+		/* The portrait is a top band, so the clusters leave the right margin
+		   and sit in the empty padding under the stats. */
 		.dot-cluster--corner {
-			display: none;
+			top: auto;
+			right: auto;
+			bottom: 0.7rem;
+			left: 0.85rem;
+			width: 1.7rem;
 		}
 
 		.dot-cluster--edge {
-			right: 0.85rem;
-			bottom: 0.6rem;
+			top: auto;
+			right: auto;
+			bottom: 0.7rem;
+			left: 50%;
 			width: 1.1rem;
+			transform: translateX(-50%);
 		}
 
 		.art {

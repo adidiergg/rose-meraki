@@ -128,16 +128,22 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 		order: -1;
 	}
 
-	@media (max-width: 600px) {
+	@media (max-width: 899px) {
+		/* The art stacks above the copy, so the clusters swap into the
+		   opposite padding bands. */
 		.dot-cluster--edge {
-			display: none;
+			top: auto;
+			right: auto;
+			bottom: 0.85rem;
+			left: var(--section-gutter);
+			width: 1.1rem;
 		}
 
-		/* The copy fills the left edge here, so the cluster moves to the opposite corner. */
 		.dot-cluster--corner {
-			left: auto;
-			right: 0.85rem;
-			bottom: 0.7rem;
+			bottom: auto;
+			right: auto;
+			top: 0.85rem;
+			left: var(--section-gutter);
 			width: 1.7rem;
 		}
 	}

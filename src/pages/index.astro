@@ -141,19 +141,26 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 			grid-template-rows: minmax(0, 1fr);
 		}
 
-		/* The portrait fills the width, so the edge cluster would sit on the drawing. */
-		.dot-cluster--edge {
-			display: none;
+		/* The portrait fills the width, so each cluster moves into the purple
+		   bands above and below it, on the opposite corner from desktop. */
+		.dot-cluster--top {
+			top: calc(var(--header-height) + 0.85rem);
+			right: 1rem;
+			left: auto;
+			width: 1.9rem;
 		}
 
-		.dot-cluster--top {
-			left: 50%;
-			width: 1.9rem;
-			transform: translateX(-50%);
+		.dot-cluster--edge {
+			top: auto;
+			right: auto;
+			bottom: 1rem;
+			left: 1rem;
+			width: 1.1rem;
 		}
 
 		.dot-cluster--foot {
-			left: 1rem;
+			left: auto;
+			right: 1rem;
 			bottom: 1rem;
 			width: 1.9rem;
 		}

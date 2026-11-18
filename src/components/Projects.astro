@@ -261,8 +261,19 @@ const projects = [
 	}
 
 	@media (max-width: 768px) {
-		.dot-cluster--corner,
+		.dot-cluster--corner {
+			top: auto;
+			left: auto;
+			right: 0.85rem;
+			bottom: 0.85rem;
+			width: 1.7rem;
+		}
+
 		.dot-cluster--foot {
+			bottom: auto;
+			right: auto;
+			top: 0.85rem;
+			left: 0.85rem;
 			width: 1.7rem;
 		}
 
