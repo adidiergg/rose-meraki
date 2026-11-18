@@ -15,7 +15,7 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 
 <Layout>
 	<Header />
-	<main>
+	<main id="contenido" tabindex="-1">
 		<section class="hero has-glow" id="top">
 			<div class="hero-content">
 				<h1><span class="rose">Rose</span> <span class="meraki">Meraki</span></h1>
@@ -42,6 +42,10 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 </Layout>
 
 <style>
+	main:focus {
+		outline: none;
+	}
+
 	.hero {
 		--glow-color: rgb(188 157 216 / 0.14);
 		--glow-size: 48rem;
@@ -63,7 +67,7 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 
 	h1 {
 		margin: 0;
-		font-family: var(--font-instrument-serif), serif;
+		font-family: var(--font-display);
 		font-weight: 400;
 		font-size: clamp(3rem, 9vw, 10rem);
 		letter-spacing: -0.02em;
@@ -106,8 +110,18 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 			grid-template-rows: minmax(0, 1fr);
 		}
 
+		/* Único h1 de la página: oculto a la vista, disponible para tecnología de asistencia. */
 		.hero-content {
-			display: none;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			clip-path: inset(50%);
+			white-space: nowrap;
+			border: 0;
 		}
 
 		.hero-media {

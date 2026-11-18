@@ -26,6 +26,14 @@
 	--header-height: clamp(4rem, 8vw, 5.25rem);
 }
 
+/* In-page targets sit below the fixed header. #top keeps its own padding. */
+#estudio,
+#sobre-mi,
+#proyectos,
+#contacto {
+	scroll-margin-top: var(--header-height);
+}
+
 /* Scroll reveal shared by the landing sections. */
 html.has-js [data-section-reveal] {
 	opacity: 0;
