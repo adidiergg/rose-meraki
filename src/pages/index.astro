@@ -141,10 +141,10 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 			grid-template-rows: minmax(0, 1fr);
 		}
 
-		/* Pull the clusters into the purple bands, flush with the screen edges.
-		   The right-edge cluster drops to the bottom corner so it misses the portrait. */
+		/* Same 0.4rem corner inset as the other sections, from the viewport
+		   edges. The top cluster is not dropped below the fixed header. */
 		.dot-cluster--top {
-			top: calc(var(--header-height) + 0.35rem);
+			top: 0.4rem;
 			left: 0.4rem;
 			width: 3.35rem;
 		}
