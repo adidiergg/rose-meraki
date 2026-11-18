@@ -23,7 +23,7 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 				colorSrc={roseColor.src}
 				colorWidth={roseColor.width}
 				colorHeight={roseColor.height}
-				label="Retrato de Rose Meraki"
+				label="Ilustración de Rose Meraki"
 				fit="contain"
 				loading="lazy"
 				strokeWidth={2.4}
@@ -65,7 +65,9 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 		font-weight: 600;
 		letter-spacing: 0.22em;
 		text-transform: uppercase;
-		color: var(--color-primary-muted);
+		/* primary (#3f1667) sobre secondary (#bc9dd8) queda en 5.88:1.
+		   primary-muted (#54457b) se queda en 3.56:1, por debajo de AA. */
+		color: var(--color-primary);
 	}
 
 	h2 {
@@ -79,15 +81,17 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 	}
 
 	.copy {
+		display: grid;
+		gap: 1rem;
 		max-width: 46ch;
-	}
-
-	.copy p {
-		margin: 0;
 		font-size: clamp(1rem, 1.4vw, 1.2rem);
 		line-height: 1.55;
 		/* Primary sobre lavanda para cumplir contraste AA en texto de cuerpo. */
 		color: var(--color-primary);
+	}
+
+	.copy p {
+		margin: 0;
 	}
 
 	.art {

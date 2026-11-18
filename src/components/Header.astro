@@ -72,6 +72,7 @@ const links = [
 	/* Ocultar el header al hacer scroll hacia abajo. */
 	.site-header.is-hidden {
 		transform: translateY(-100%);
+		pointer-events: none;
 	}
 
 	.logo {
@@ -255,14 +256,52 @@ const links = [
 </style>
 
 <script>
-	const header = document.querySelector('.site-header');
+	const header = document.querySelector<HTMLElement>('.site-header');
 	const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
-	const nav = document.querySelector('.site-nav');
+	const nav = document.querySelector<HTMLElement>('.site-nav');
 	const desktopQuery = window.matchMedia('(min-width: 769px)');
 
 	let lastScrollY = window.scrollY;
 
-	const setMenu = (open: boolean) => {
+	const focusWithoutScroll = (element: HTMLElement | null | undefined) => {
+		element?.focus({ preventScroll: true });
+	};
+
+	// En móvil el menú cerrado sigue visible durante el fade.
+	// `inert` lo saca del tabulador al momento. En escritorio, no.
+	const setNavInert = (inert: boolean) => {
+		if (!nav) return;
+		if (inert && !desktopQuery.matches) nav.setAttribute('inert', '');
+		else nav.removeAttribute('inert');
+	};
+
+	// offsetTop ignora el translate del reveal, así la sección queda
+	// bajo el header fijo cuando esa animación termina.
+	const scrollToSection = (target: HTMLElement) => {
+		const offset = header?.getBoundingClientRect().height ?? 0;
+		window.scrollTo({ top: Math.max(0, target.offsetTop - offset) });
+	};
+
+	// El header se sale de pantalla en escritorio. `inert` lo saca del tabulador.
+	const setHeaderHidden = (hidden: boolean) => {
+		if (!header) return;
+		if (header.classList.contains('is-hidden') === hidden) return;
+
+		header.classList.toggle('is-hidden', hidden);
+
+		if (hidden) {
+			const active = document.activeElement;
+			if (active instanceof HTMLElement && header.contains(active)) {
+				active.blur();
+			}
+			header.setAttribute('inert', '');
+		} else {
+			header.removeAttribute('inert');
+		}
+	};
+
+	const setMenu = (open: boolean, restoreFocus = false) => {
+		const wasOpen = header?.classList.contains('is-open') ?? false;
 		header?.classList.toggle('is-open', open);
 		toggle?.setAttribute('aria-expanded', String(open));
 		toggle?.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
@@ -270,6 +309,16 @@ const links = [
 		// El header nunca se oculta mientras el menú está abierto.
 		if (open) {
 			header?.classList.remove('is-hidden');
+			header?.removeAttribute('inert');
+			setNavInert(false);
+			const firstLink = nav?.querySelector<HTMLAnchorElement>('a');
+			focusWithoutScroll(firstLink);
+			return;
+		}
+
+		setNavInert(true);
+		if (restoreFocus && wasOpen) {
+			focusWithoutScroll(toggle);
 		}
 	};
 
@@ -283,40 +332,96 @@ const links = [
 
 		// En móvil el header no se oculta al hacer scroll hacia abajo.
 		const shouldHide = desktopQuery.matches && !menuOpen && pastThreshold && scrollingDown;
-		header?.classList.toggle('is-hidden', shouldHide);
+		setHeaderHidden(shouldHide);
 
 		lastScrollY = y;
 	};
 
 	toggle?.addEventListener('click', () => {
 		const isOpen = header?.classList.contains('is-open') ?? false;
-		setMenu(!isOpen);
+		setMenu(!isOpen, isOpen);
 	});
 
-	// Cerrar el menú al pulsar un enlace.
+	// Cerrar el menú al pulsar un enlace y llevar el foco al destino.
+	// preventDefault evita que el salto de ancla devuelva el foco al documento.
 	nav?.addEventListener('click', (event) => {
-		const target = event.target as Element | null;
-		if (target?.closest('a')) {
-			setMenu(false);
+		const link = (event.target as Element | null)?.closest('a');
+		if (!(link instanceof HTMLAnchorElement)) return;
+
+		const href = link.getAttribute('href');
+		const target = href?.startsWith('#') ? document.querySelector(href) : null;
+
+		if (target instanceof HTMLElement) {
+			event.preventDefault();
+		}
+
+		setMenu(false, false);
+
+		if (!(target instanceof HTMLElement)) return;
+
+		const heading = target.querySelector('h1, h2, h3');
+		const focusTarget = heading instanceof HTMLElement ? heading : target;
+		if (!focusTarget.hasAttribute('tabindex')) {
+			focusTarget.setAttribute('tabindex', '-1');
+		}
+
+		scrollToSection(target);
+		focusWithoutScroll(focusTarget);
+		if (href) history.pushState(null, '', href);
+	});
+
+	header?.querySelector<HTMLAnchorElement>('.logo')?.addEventListener('click', () => {
+		if (header.classList.contains('is-open')) {
+			setMenu(false, false);
 		}
 	});
 
-	// Cerrar el menú con Escape.
+	// Si el foco sale del header, el menú móvil se cierra.
+	header?.addEventListener('focusout', () => {
+		if (!header.classList.contains('is-open')) return;
+
+		requestAnimationFrame(() => {
+			if (!header.classList.contains('is-open')) return;
+			const active = document.activeElement;
+			if (active instanceof Node && header.contains(active)) return;
+			setMenu(false, false);
+		});
+	});
+
+	// Cerrar el menú con Escape y devolver el foco al botón.
 	document.addEventListener('keydown', (event) => {
-		if (event.key === 'Escape') {
-			setMenu(false);
-		}
+		if (event.key !== 'Escape') return;
+		if (!header?.classList.contains('is-open')) return;
+		setMenu(false, true);
 	});
 
 	// Cerrar el menú al volver a escritorio, y re-mostrar el header al pasar a móvil.
 	desktopQuery.addEventListener('change', (event) => {
 		if (event.matches) {
-			setMenu(false);
+			setMenu(false, false);
 		} else {
-			header?.classList.remove('is-hidden');
+			setHeaderHidden(false);
+			setNavInert(true);
 		}
 	});
 
+	// Un enlace directo (#contacto, etc.) no debe quedar bajo el header fijo.
+	const alignHash = () => {
+		const hash = location.hash;
+		if (!hash || hash === '#top' || hash === '#contenido') return;
+		const target = document.querySelector(hash);
+		if (!(target instanceof HTMLElement)) return;
+		const offset = header?.getBoundingClientRect().height ?? 0;
+		lastScrollY = Math.max(0, target.offsetTop - offset);
+		scrollToSection(target);
+	};
+
 	window.addEventListener('scroll', onScroll, { passive: true });
+	window.addEventListener('load', () => {
+		// The browser scrolls to the fragment on load; correct it after that.
+		setTimeout(alignHash, 0);
+	});
 	onScroll();
+	setNavInert(true);
+	alignHash();
 </script>
