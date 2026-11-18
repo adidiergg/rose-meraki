@@ -18,7 +18,7 @@ interface Props {
 const {
 	columns = 5,
 	rows = 3,
-	spacing = 8,
+	spacing = 3.4,
 	size = 2.4,
 	color = 'var(--color-cream)',
 	opacity = 0.55,
@@ -35,7 +35,7 @@ const positive = (value: number, fallback: number) =>
 
 const cols = count(columns, 5);
 const lineCount = count(rows, 3);
-const gap = positive(spacing, 8);
+const gap = positive(spacing, 3.4);
 const diameter = positive(size, 2.4);
 const radius = diameter / 2;
 const vbWidth = (cols - 1) * gap + diameter;
@@ -53,8 +53,9 @@ const dots = Array.from({ length: lineCount * cols }, (_, index) => {
 ---
 
 <!--
-	Rendered size comes from the parent's width. `size` and `spacing` only set
-	the dot-to-gap ratio; the cluster scales as one SVG.
+	Rendered size comes from the parent's width. `size` (2.4) and `spacing`
+	(3.4, center to center) set a compact grid: the gap between dots is about
+	0.4× the dot. The cluster scales as one SVG.
 -->
 <svg
 	class:list={['dot-pattern', className]}
