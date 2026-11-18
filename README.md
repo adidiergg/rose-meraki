@@ -1,8 +1,20 @@
 # Rose Meraki
 
-Sitio del estudio de retrato Rose Meraki. Es una sola página en español: cabecera, hero y las secciones Estudio, Sobre mí, Proyectos y Contacto.
+Sitio para documentar proyectos de código abierto y ofrecer consultoría para migrar proyectos a inteligencia artificial.
 
 Publicado en [https://rose-meraki.vercel.app](https://rose-meraki.vercel.app).
+
+## Contenido visible (pendiente de actualizar)
+
+La página que hay hoy en `src/` no describe ese propósito. El texto y la navegación hablan de un estudio de retrato:
+
+- La cabecera enlaza «Estudio», «Sobre mí», «Proyectos» y «Contacto».
+- `Studio.astro` habla de sesiones, de un estudio propio y de que el retrato se parezca a quien lo protagoniza.
+- `Rose.astro` habla de retratos y de fotografiar gestos.
+- `Projects.astro` lista Prisma (sesión editorial, 2026) y Meraki (retrato en estudio, 2025), y cierra con «Hablemos de tu sesión».
+- `Contact.astro` invita a hablar de la próxima sesión y el pie dice «Estudio y exterior».
+
+Ese contenido está pendiente de actualizar. La estructura sigue siendo una sola página en español: cabecera, hero y esas cuatro secciones.
 
 ## Stack
 
@@ -95,6 +107,8 @@ src/
 También define el revelado al hacer scroll (`[data-section-reveal]` / `.is-visible`, solo con `html.has-js`), el anillo `:focus-visible` y el brillo decorativo `.has-glow` (cada sección ajusta `--glow-color`, `--glow-size` y la posición). El revelado se anula con `prefers-reduced-motion: reduce`.
 
 ### Componentes
+
+Estas fichas describen el código actual, incluido el texto de estudio de retrato pendiente de cambiar.
 
 - `Header.astro`. Cabecera fija con el logo (`src/assets/logo.svg`, enlace a `#top`) y la navegación a `#estudio`, `#sobre-mi`, `#proyectos` y `#contacto`. Por debajo de 769px el menú pasa a un panel con botón. Al hacer scroll recibe `is-scrolled`; en escritorio se oculta al bajar (`is-hidden`) y no se oculta con el menú abierto ni en móvil.
 - `Studio.astro`. Sección `#estudio`. Texto del estudio y tres cifras definidas en el archivo (sesiones realizadas, años de archivo, estudio propio). El retrato usa el arte de `src/assets/artwork/studio/`.

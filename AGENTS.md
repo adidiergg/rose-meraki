@@ -1,6 +1,8 @@
 # Rose Meraki
 
-Sitio de una sola página del estudio de retrato Rose Meraki. La guía para personas está en `README.md`. Este archivo es para agentes que editan el código.
+Sitio para documentar proyectos de código abierto y ofrecer consultoría para migrar proyectos a inteligencia artificial. La guía para personas está en `README.md`. Este archivo es para agentes que editan el código.
+
+El texto visible de la página todavía describe un estudio de retrato: sesiones, estudio y retratos en `Header.astro`, `Studio.astro`, `Rose.astro`, `Projects.astro` y `Contact.astro`. Está pendiente de actualizar. No lo tomes como el propósito del producto ni lo extiendas con más texto de estudio fotográfico.
 
 Documentación de Astro: https://docs.astro.build
 
@@ -62,10 +64,11 @@ Los SVG de línea se importan con `?raw`. El color se importa como asset de Astr
 
 ## Convenciones observadas
 
+- El propósito del sitio es documentar proyectos de código abierto y ofrecer consultoría para migrar proyectos a inteligencia artificial. El copy de estudio, sesiones y retratos que hay ahora en la página es el estado actual del contenido, pendiente de actualizar.
 - Paleta, fuentes y medidas de sección viven en `src/styles/tokens.css`. Los componentes usan `--color-*`, `--font-display`, `--font-text`, `--section-gutter`, `--section-block`, `--content-width` y `--header-height`. Algunas reglas repiten un color del token como `rgb()` suelto.
 - Cada bloque de contenido lleva la clase `has-glow` y ajusta sus variables `--glow-*`. El revelado usa `data-section-reveal`; `index.astro` añade `is-visible`.
 - `Layout.astro` marca `html.has-js`. `DrawPortrait` depende de esa clase: sin JavaScript se ve la imagen a color y se oculta la capa de líneas. No quites `has-js` ni muestres el line-art como estado final.
-- Las animaciones de retrato, el revelado de sección y la cabecera respetan `prefers-reduced-motion: reduce`. Conserva ese comportamiento al añadir movimiento.
+- Las animaciones de `DrawPortrait`, el revelado de sección y la cabecera respetan `prefers-reduced-motion: reduce`. Conserva ese comportamiento al añadir movimiento.
 - Los `id` de sección y los `href` de `Header.astro` van juntos: `#top`, `#estudio`, `#sobre-mi`, `#proyectos`, `#contacto`.
 - Por debajo de 769px el título del hero se oculta y la cabecera muestra el wordmark «Rose Meraki». El corte de 900px se usa en el layout de Estudio, Sobre mí, Proyectos y en el `focus` de escritorio de `DrawPortrait`.
 - Los estilos van en el `<style>` del propio componente Astro.
