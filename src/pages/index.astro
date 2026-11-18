@@ -81,19 +81,19 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 	.dot-cluster--top {
 		top: calc(var(--header-height) + 1.35rem);
 		left: clamp(var(--section-gutter), 22vw, 22rem);
-		width: 2.15rem;
+		width: 4.6rem;
 	}
 
 	.dot-cluster--edge {
 		top: 32%;
 		right: clamp(0.85rem, 2vw, 1.75rem);
-		width: 1.25rem;
+		width: 2rem;
 	}
 
 	.dot-cluster--foot {
 		left: var(--section-gutter);
 		bottom: clamp(1.25rem, 3.5vh, 2.75rem);
-		width: 2.15rem;
+		width: 4.6rem;
 	}
 
 	h1 {
@@ -141,28 +141,25 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 			grid-template-rows: minmax(0, 1fr);
 		}
 
-		/* The portrait fills the width, so each cluster moves into the purple
-		   bands above and below it, on the opposite corner from desktop. */
+		/* Pull the clusters into the purple bands, flush with the screen edges.
+		   The right-edge cluster drops to the bottom corner so it misses the portrait. */
 		.dot-cluster--top {
-			top: calc(var(--header-height) + 0.85rem);
-			right: 1rem;
-			left: auto;
-			width: 1.9rem;
+			top: calc(var(--header-height) + 0.35rem);
+			left: 0.4rem;
+			width: 3.35rem;
 		}
 
 		.dot-cluster--edge {
 			top: auto;
-			right: auto;
-			bottom: 1rem;
-			left: 1rem;
-			width: 1.1rem;
+			right: 0.4rem;
+			bottom: 0.4rem;
+			width: 2rem;
 		}
 
 		.dot-cluster--foot {
-			left: auto;
-			right: 1rem;
-			bottom: 1rem;
-			width: 1.9rem;
+			left: 0.4rem;
+			bottom: 0.4rem;
+			width: 3.35rem;
 		}
 
 		/* Único h1 de la página: oculto a la vista, disponible para tecnología de asistencia. */

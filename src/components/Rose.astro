@@ -66,13 +66,13 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 	.dot-cluster--edge {
 		top: 1.15rem;
 		right: var(--section-gutter);
-		width: 1.25rem;
+		width: 2rem;
 	}
 
 	.dot-cluster--corner {
 		bottom: 1.15rem;
 		left: var(--section-gutter);
-		width: 2.1rem;
+		width: 4.5rem;
 	}
 
 	.content {
@@ -128,23 +128,17 @@ import roseLineRaw from '../assets/artwork/rose/rose-line.svg?raw';
 		order: -1;
 	}
 
-	@media (max-width: 899px) {
-		/* The art stacks above the copy, so the clusters swap into the
-		   opposite padding bands. */
+	@media (max-width: 768px) {
 		.dot-cluster--edge {
-			top: auto;
-			right: auto;
-			bottom: 0.85rem;
-			left: var(--section-gutter);
-			width: 1.1rem;
+			top: 0.4rem;
+			right: 0.4rem;
+			width: 2rem;
 		}
 
 		.dot-cluster--corner {
-			bottom: auto;
-			right: auto;
-			top: 0.85rem;
-			left: var(--section-gutter);
-			width: 1.7rem;
+			bottom: 0.4rem;
+			left: 0.4rem;
+			width: 3.15rem;
 		}
 	}
 
