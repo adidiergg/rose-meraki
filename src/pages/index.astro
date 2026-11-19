@@ -134,6 +134,13 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 			grid-template-rows: minmax(0, 1fr);
 			align-items: stretch;
 		}
+
+		/* Sit in the header row, just right of the square star. The logo's
+		   width matches its height. A 1.5rem gap keeps it off the mark. */
+		.dot-cluster--top {
+			top: calc((var(--header-height) - 2.46rem) / 2);
+			left: calc(var(--section-gutter) + clamp(1.75rem, 2.5vw, 2.4rem) + 1.5rem);
+		}
 	}
 
 	@media (max-width: 768px) {
