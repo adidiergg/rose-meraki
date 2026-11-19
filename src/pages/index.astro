@@ -77,22 +77,23 @@ import heroLineRaw from '../assets/artwork/hero/hero-line.svg?raw';
 		padding: clamp(1.5rem, 5vw, 5rem);
 	}
 
-	/* Brand-sheet clusters, kept in the purple field around the portrait. */
+	/* Brand-sheet clusters. Desktop corners use the same 0.4rem screen inset
+	   as mobile. The top cluster sits under the fixed header (z-index 1000). */
 	.dot-cluster--top {
-		top: calc(var(--header-height) + 1.35rem);
-		left: clamp(var(--section-gutter), 22vw, 22rem);
+		top: 0.4rem;
+		left: 0.4rem;
 		width: 4.6rem;
 	}
 
 	.dot-cluster--edge {
 		top: 32%;
-		right: clamp(0.85rem, 2vw, 1.75rem);
+		right: 0.4rem;
 		width: 2rem;
 	}
 
 	.dot-cluster--foot {
-		left: var(--section-gutter);
-		bottom: clamp(1.25rem, 3.5vh, 2.75rem);
+		left: 0.4rem;
+		bottom: 0.4rem;
 		width: 4.6rem;
 	}
 
